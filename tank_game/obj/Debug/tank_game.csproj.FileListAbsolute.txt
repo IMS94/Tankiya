@@ -1,0 +1,7 @@
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\obj\Debug\tank_game.Gui.resources
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\obj\Debug\tank_game.csproj.GenerateResource.Cache
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\bin\Debug\tank_game.exe.config
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\bin\Debug\tank_game.exe
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\bin\Debug\tank_game.pdb
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\obj\Debug\tank_game.exe
+G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\tank_game\obj\Debug\tank_game.pdb
