@@ -317,6 +317,16 @@ namespace tank_game
         }
         #endregion
 
+
+
+
+        /// <summary>
+        /// Get the players array for external use
+        /// </summary>
+        /// <returns></returns>
+        public Player[] GetPlayers() {
+            return this.players;
+        }
        
     }
 }
