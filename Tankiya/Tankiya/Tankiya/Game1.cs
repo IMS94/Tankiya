@@ -41,7 +41,7 @@ namespace Tankiya
          * 
          */
         private BasicCommandSender commandSender;
-        private MapItem[,] grid;
+        private Map map;
 
 
 
@@ -51,7 +51,6 @@ namespace Tankiya
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            this.grid = Map.grid;
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Tankiya
 
             keyboardState = Keyboard.GetState();
             commandSender = new BasicCommandSender();
-            
+            map = new Map();
         }
 
         /// <summary>

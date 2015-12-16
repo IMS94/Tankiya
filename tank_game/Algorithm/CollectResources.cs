@@ -32,7 +32,6 @@ namespace tank_game
             List<int> my_costs = new List<int>();
             List<List<int>> my_coin_command_list =new List<List<int>>();
 
-            //calculate and add costs for coin piles
             try
             {
                 for (int i = 0; i < player_count; i++)
@@ -69,8 +68,6 @@ namespace tank_game
                     }
                     index_min_my_costs = my_costs.IndexOf(my_costs.Min());
                     bool use_less = false;
-
-                    //check whether decided resource is useless as it is too near to another player
                     for (int i = 0; i < player_count; i++)
                     {
                         if (i != myid)

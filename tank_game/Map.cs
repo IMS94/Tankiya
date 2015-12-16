@@ -9,7 +9,7 @@ namespace tank_game
     public class Map
     {
         #region MapVariables
-        public static MapItem[,] grid { get; set; } //Main map which contains data
+        public MapItem[,] grid { get; set; } //Main map which contains data
         public int myid { get; set; } //my client id in the game
         public String map_string { get; set; } //map character grid string for cmd
 
@@ -167,14 +167,14 @@ namespace tank_game
                         foreach (String cordinate in cordinates)
                         {
                             
-                            grid[Int32.Parse(cordinate[0]+""), Int32.Parse(cordinate[2]+"")] = new Brick();
+                            this.grid[Int32.Parse(cordinate[0]+""), Int32.Parse(cordinate[2]+"")] = new Brick();
                         }
                     }
                     else if (i == 3)
                     {
                         foreach (String cordinate in cordinates)
                         {
-                            grid[Int32.Parse(cordinate[0] + ""), Int32.Parse(cordinate[2] + "")] = new Stone();
+                            this.grid[Int32.Parse(cordinate[0] + ""), Int32.Parse(cordinate[2] + "")] = new Stone();
                         }
                     }
 
@@ -182,7 +182,7 @@ namespace tank_game
                     {
                         foreach (String cordinate in cordinates)
                         {
-                            grid[Int32.Parse(cordinate[0] + ""), Int32.Parse(cordinate[2] + "")] = new Water();
+                            this.grid[Int32.Parse(cordinate[0] + ""), Int32.Parse(cordinate[2] + "")] = new Water();
                         }
                     }
                 }
