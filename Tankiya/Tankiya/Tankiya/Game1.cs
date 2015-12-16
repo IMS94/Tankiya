@@ -28,7 +28,9 @@ namespace Tankiya
         Texture2D foregroundTexture;
         Texture2D tankTexture;
         Texture2D waterTexture;
-        Texture2D bricktexture;
+        Texture2D brickTexture;
+        Texture2D coinTexture;
+        Texture2D stoneTexture;
 
         KeyboardState keyboardState;
 
@@ -49,7 +51,7 @@ namespace Tankiya
         /// <summary>
         /// Colors array to color the tanks
         /// </summary>
-        private Color[] playerColors = new Color[] { Color.White, Color.Blue, Color.Yellow, Color.Pink, Color.Black };
+        private Color[] playerColors = new Color[] { Color.Purple, Color.Brown, Color.Yellow, Color.Pink, Color.LightBlue };
 
 
 
@@ -71,7 +73,7 @@ namespace Tankiya
 
             base.Initialize();
 
-            graphics.PreferredBackBufferWidth = 600;
+            graphics.PreferredBackBufferWidth = 800;
             graphics.PreferredBackBufferHeight = 600;
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
@@ -105,7 +107,9 @@ namespace Tankiya
             foregroundTexture.SetData(GenerateMap());
             tankTexture = Content.Load<Texture2D>("tank_min");
             waterTexture = Content.Load<Texture2D>("water_min");
-            
+            brickTexture = Content.Load<Texture2D>("brick");
+            coinTexture = Content.Load<Texture2D>("coin");
+            stoneTexture = Content.Load<Texture2D>("stone");
 
         }
 
@@ -214,7 +218,7 @@ namespace Tankiya
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
             DrawScenery();
@@ -277,7 +281,8 @@ namespace Tankiya
             Player[] players = Map.GetInstance().GetPlayers();
             for (int i = 0; i < players.Length; i++)
             {
-                if(players[i]!=null){
+                if (players[i] != null && players[i].health>0)
+                {
 
                     spriteBatch.Draw(tankTexture, new Vector2(players[i].cordinateX*60+30, players[i].cordinateY*60+30),
                         null, playerColors[i], GetRotation(players[i].direction), new Vector2(30, 30), 1, SpriteEffects.None, 1);
@@ -289,6 +294,9 @@ namespace Tankiya
 
 
 
+        /// <summary>
+        /// Draws the obstacles in the map. Stone, water brick and coins
+        /// </summary>
         private void DrawObstacles() { 
             MapItem[,] grid = Map.GetInstance().GetGrid();
             for (int i = 0; i < grid.GetLength(0);i++ )
@@ -308,10 +316,31 @@ namespace Tankiya
                     /**
                      * Draw bricks
                      */
-                    if (grid[i, j] != null && grid[i, j].GetType() == typeof(Brick))
+                    else if (grid[i, j] != null && grid[i, j].GetType() == typeof(Brick))
                     {
-                        
+                        spriteBatch.Draw(brickTexture, new Vector2(i * 60, j * 60),
+                        null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
                     }
+
+
+                    /**
+                     * Draw coins
+                     */
+                    else if (grid[i, j] != null && grid[i, j].GetType() == typeof(Coin))
+                    {
+                        spriteBatch.Draw(coinTexture, new Vector2(i * 60, j * 60),
+                        null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+                    }
+
+                    /**
+                     * Draw stones
+                     */
+                    else if (grid[i, j] != null && grid[i, j].GetType() == typeof(Stone))
+                    {
+                        spriteBatch.Draw(stoneTexture, new Vector2(i * 60, j * 60),
+                        null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+                    }
+
                 }
                 
             }
