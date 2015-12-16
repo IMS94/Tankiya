@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
-using GUI;
 
 namespace tank_game
 {
@@ -16,7 +15,7 @@ namespace tank_game
                
                 Console.Title = "Mustank Console";
                 Console.WriteLine("Client started...");
-                Map map = new Map();
+                Map map = Map.GetInstance();
                 Gui gui = new Gui(map);
                 Application.Run(gui);
 

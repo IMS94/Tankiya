@@ -6,7 +6,7 @@ using System.Text;
 namespace tank_game
 {
     //class for the Brick wall
-    class Brick : UnmovableMapItem
+    public class Brick : UnmovableMapItem
     {
 
         public int health { get; set; }

@@ -9,12 +9,15 @@ namespace tank_game
     public class Map
     {
         #region MapVariables
-        public MapItem[,] grid { get; set; } //Main map which contains data
+        public MapItem[,] grid = null;
         public int myid { get; set; } //my client id in the game
         public String map_string { get; set; } //map character grid string for cmd
 
         public Battle battle ;
         public CollectResources collect_resources;
+
+        //The map instance to be used all over the game
+        private static Map map;
         
         /* playing method will be decided on this value
            
@@ -32,7 +35,7 @@ namespace tank_game
         
         #endregion
 
-        public Map()
+        private Map()
         {
             grid = new MapItem[10, 10];
             for (int i = 0; i < 10; i++)
@@ -47,11 +50,36 @@ namespace tank_game
             collect_resources = new CollectResources(grid,players,myid,player_count,search_methods);
             search_methods.clearMapForBFS();
             com = Communicator.getInstance();
-            com.setMap(this);
             com.StartListening();
             map_string = "";
             playingMethod = 0;
         } //Constructor to initialize map with all EmptyCells
+
+
+
+        /// <summary>
+        /// Get the map instance. This is to make this class a singleton.
+        /// </summary>
+        /// <returns></returns>
+        public static Map GetInstance() { 
+            if(Map.map==null){
+                Map.map = new Map();
+            }
+
+            Map.map.com.setMap(Map.map);
+            return Map.map;
+        }
+
+
+
+
+
+        public MapItem[,] GetGrid() {
+            return this.grid;
+        }
+
+
+
 
         #region Map Printing functions
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+
 namespace tank_game
 {
     //class for the player
@@ -17,8 +18,8 @@ namespace tank_game
         public int cordinateX { get; set; }
         public int cordinateY { get; set; }
         public Player(String name)
-        { 
-            this.name = name[1]+"";
+        {
+            this.name = name+"";
             points = 0;
             coins = 0;
             health = 100;

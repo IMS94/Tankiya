@@ -26,6 +26,9 @@ namespace Tankiya
 
         Texture2D backgroundTexture;
         Texture2D foregroundTexture;
+        Texture2D tankTexture;
+        Texture2D waterTexture;
+        Texture2D bricktexture;
 
         KeyboardState keyboardState;
 
@@ -43,6 +46,10 @@ namespace Tankiya
         private BasicCommandSender commandSender;
         private Map map;
 
+        /// <summary>
+        /// Colors array to color the tanks
+        /// </summary>
+        private Color[] playerColors = new Color[] { Color.White, Color.Blue, Color.Yellow, Color.Pink, Color.Black };
 
 
 
@@ -61,7 +68,7 @@ namespace Tankiya
         /// </summary>
         protected override void Initialize()
         {
-            
+
             base.Initialize();
 
             graphics.PreferredBackBufferWidth = 600;
@@ -72,7 +79,7 @@ namespace Tankiya
 
             keyboardState = Keyboard.GetState();
             commandSender = new BasicCommandSender();
-            map = new Map();
+            map = Map.GetInstance();
         }
 
         /// <summary>
@@ -96,6 +103,9 @@ namespace Tankiya
             backgroundTexture = Content.Load<Texture2D>("back");
             foregroundTexture = new Texture2D(device, screenWidth, screenHeight, false, SurfaceFormat.Color);
             foregroundTexture.SetData(GenerateMap());
+            tankTexture = Content.Load<Texture2D>("tank_min");
+            waterTexture = Content.Load<Texture2D>("water_min");
+            
 
         }
 
@@ -132,13 +142,16 @@ namespace Tankiya
         /// <summary>
         /// Read the keyboard inputs and call the command sender class to give the corresponding response
         /// </summary>
-        private void GetInput() {
+        private void GetInput()
+        {
 
             KeyboardState newState = Keyboard.GetState();
 
             //if "J" is pressed, send the command to join to the server
-            if(newState.IsKeyDown(Keys.J)){
-                if(!keyboardState.IsKeyDown(Keys.J)){
+            if (newState.IsKeyDown(Keys.J))
+            {
+                if (!keyboardState.IsKeyDown(Keys.J))
+                {
                     commandSender.Join();
                 }
             }
@@ -179,7 +192,7 @@ namespace Tankiya
                     commandSender.Left();
                 }
             }
-            
+
             //if "Right" is pressed, send the command to go right
             if (newState.IsKeyDown(Keys.Right))
             {
@@ -205,6 +218,11 @@ namespace Tankiya
 
             spriteBatch.Begin();
             DrawScenery();
+
+            DrawObstacles();
+
+            DrawTanks();
+
             spriteBatch.End();
 
             base.Draw(gameTime);
@@ -215,11 +233,120 @@ namespace Tankiya
         /// <summary>
         /// Draws the background and the foreground.
         /// </summary>
-        private void DrawScenery() {
+        private void DrawScenery()
+        {
 
             Rectangle screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
             spriteBatch.Draw(backgroundTexture, screenRectangle, Color.White);
             spriteBatch.Draw(foregroundTexture, screenRectangle, Color.White);
+        }
+
+        /*
+        texture
+        Type: Texture2D
+        A texture.
+        position
+        Type: Vector2
+        The location (in screen coordinates) to draw the sprite.
+        sourceRectangle
+        Type: Nullable<Rectangle>
+        A rectangle that specifies (in texels) the source texels from a texture. Use null to draw the entire texture.
+        color
+        Type: Color
+        The color to tint a sprite. Use Color.White for full color with no tinting.
+        rotation
+        Type: Single
+        Specifies the angle (in radians) to rotate the sprite about its center.
+        origin
+        Type: Vector2
+        The sprite origin; the default is (0,0) which represents the upper-left corner.
+        scale
+        Type: Vector2
+        Scale factor.
+        effects
+        Type: SpriteEffects
+        Effects to apply.
+        layerDepth
+        Type: Single
+        The depth of a layer. By default, 0 represents the front layer and 1 represents a back layer. 
+                 * Use SpriteSortMode if you want sprites to be sorted during drawing.
+         * */
+
+        private void DrawTanks()
+        {
+            Player[] players = Map.GetInstance().GetPlayers();
+            for (int i = 0; i < players.Length; i++)
+            {
+                if(players[i]!=null){
+
+                    spriteBatch.Draw(tankTexture, new Vector2(players[i].cordinateX*60+30, players[i].cordinateY*60+30),
+                        null, playerColors[i], GetRotation(players[i].direction), new Vector2(30, 30), 1, SpriteEffects.None, 1);
+                
+                }
+            }
+        }
+
+
+
+
+        private void DrawObstacles() { 
+            MapItem[,] grid = Map.GetInstance().GetGrid();
+            for (int i = 0; i < grid.GetLength(0);i++ )
+            {
+                for (int j = 0; j < grid.GetLength(1); j++) { 
+                    
+                    /**
+                     * Draw water
+                     */
+                    if(grid[i,j]!=null && grid[i, j].GetType()==typeof(Water)){
+
+                        spriteBatch.Draw(waterTexture, new Vector2(i* 60 , j * 60 ),
+                        null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+
+                    }
+
+                    /**
+                     * Draw bricks
+                     */
+                    if (grid[i, j] != null && grid[i, j].GetType() == typeof(Brick))
+                    {
+                        
+                    }
+                }
+                
+            }
+        }
+
+/*
+        0 North
+        1 East,
+        2 South 
+        3 West 
+ */
+
+
+        private float GetRotation(int direction) {
+            switch (direction) { 
+                case 0:
+                    return ToRadian(0);
+                    break;
+                case 1:
+                    return ToRadian(90);
+                    break;
+                case 2:
+                    return ToRadian(180);
+                    break;
+                case 3:
+                    return ToRadian(-90);
+                    break;
+            }
+
+            return 0;
+        
+        }
+
+        private float ToRadian(int degrees) {
+            return (float)(Math.PI / 180) * degrees;
         }
 
 
@@ -229,25 +356,28 @@ namespace Tankiya
         /// Generates the grid where the game will be played. A 10x10 grid
         /// </summary>
         /// <returns></returns>
-        private Color[] GenerateMap() { 
-            Color[] grid=new Color[screenHeight*screenWidth];
+        private Color[] GenerateMap()
+        {
+            Color[] grid = new Color[screenHeight * screenWidth];
 
-            for (int i = 0; i < screenWidth;i++ )
+            for (int i = 0; i < screenWidth; i++)
             {
                 for (int j = 0; j < screenHeight; j++)
                 {
-                    grid[i+screenWidth*j]=Color.Transparent;
-                    if(i%gridWidth==0){
+                    grid[i + screenWidth * j] = Color.Transparent;
+                    if (i % gridWidth == 0)
+                    {
                         grid[i + screenWidth * j] = Color.White;
                     }
 
-                    if(j%gridWidth==0){
+                    if (j % gridWidth == 0)
+                    {
                         grid[i + screenWidth * j] = Color.White;
                     }
                 }
             }
 
             return grid;
-        } 
+        }
     }
 }
