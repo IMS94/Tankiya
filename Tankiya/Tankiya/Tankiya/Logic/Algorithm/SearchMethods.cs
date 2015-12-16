@@ -283,6 +283,7 @@ namespace tank_game
             }
             catch (Exception ex)
             {
+                Console.WriteLine("SearchMethods-getPath() function" + ex);
                 return null;
             }
         }

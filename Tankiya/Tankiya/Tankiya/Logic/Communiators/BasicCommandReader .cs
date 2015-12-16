@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using tank_game.util;
 
 namespace tank_game
 {

@@ -22,7 +22,7 @@ namespace tank_game
         {
             left_time -= 1000;
             if (left_time <= 0)
-            { return true; }
+            { return true;}
             return false;
         }
 

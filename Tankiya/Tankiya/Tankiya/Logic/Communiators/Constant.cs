@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 
-namespace tank_game.util
+namespace tank_game
 {
     class Constant
     {

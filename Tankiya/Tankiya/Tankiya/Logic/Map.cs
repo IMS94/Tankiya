@@ -23,6 +23,7 @@ namespace tank_game
            
          *          0  ---------------- collect coin piles
          *          1  ---------------- collect health packs
+         *          2------------------ attack player
          
         */
         public int playingMethod { get; set; }
@@ -46,6 +47,7 @@ namespace tank_game
                 }
             }
             players = new Player[5];
+            player_count = 1;
             SearchMethods search_methods = new SearchMethods(grid, players, myid, player_count);
             collect_resources = new CollectResources(grid,players,myid,player_count,search_methods);
             search_methods.clearMapForBFS();
@@ -54,8 +56,6 @@ namespace tank_game
             map_string = "";
             playingMethod = 0;
         } //Constructor to initialize map with all EmptyCells
-
-
 
         /// <summary>
         /// Get the map instance. This is to make this class a singleton.
@@ -70,15 +70,9 @@ namespace tank_game
             return Map.map;
         }
 
-
-
-
-
         public MapItem[,] GetGrid() {
             return this.grid;
         }
-
-
 
 
         #region Map Printing functions
@@ -237,6 +231,7 @@ namespace tank_game
 
                 String[] mainSplit = read.Split(':');
                 int playerC = mainSplit.Count() - 2;
+                player_count = playerC;
                 for (int i = 1; i < playerC + 1; i++)
                 {
 
@@ -277,10 +272,15 @@ namespace tank_game
             }
             updateWorld();
             gamePlay();
-            foreach (HealthPack hp in collect_resources.health_pack_queue)
+            foreach (Coin coin in collect_resources.coin_queue)
             {
                 
-                Console.WriteLine("coin piles in queue " + hp.x_cordinate + " " + hp.y_cordinate);
+                Console.WriteLine("@readmovingG : Coin Piles in queue " + coin.x_cordinate + " " + coin.y_cordinate +"     "+coin.left_time);
+            }
+            foreach (HealthPack hp in collect_resources.health_pack_queue)
+            {
+
+                Console.WriteLine("@readmovingG : Health Pack in queue " + hp.x_cordinate + " " + hp.y_cordinate+"     "+hp.left_time);
             }
             
         }
@@ -291,7 +291,8 @@ namespace tank_game
             String[] mainSplit = read.Split(':');
             int x=Int32.Parse(mainSplit[1][0] + "");
             int y=Int32.Parse(mainSplit[1][2] + "");
-            Coin coin_pile = new Coin(x, y, Int32.Parse(mainSplit[2] + ""), Int32.Parse(mainSplit[3] + ""));
+            Coin coin_pile = new Coin(x, y, Int32.Parse(mainSplit[2] + "")-1000, Int32.Parse(mainSplit[3] + ""));
+            Console.WriteLine("@readcoinC coin pile added " + x + " " + y);
             collect_resources.coin_queue.Add(coin_pile);
             grid[x, y] = coin_pile; 
             
@@ -302,7 +303,8 @@ namespace tank_game
             String[] mainSplit = read.Split(':');
             int x = Int32.Parse(mainSplit[1][0] + "");
             int y = Int32.Parse(mainSplit[1][2] + "");
-            HealthPack health_pack = new HealthPack(x, y, Int32.Parse(mainSplit[2] + ""));
+            HealthPack health_pack = new HealthPack(x, y, Int32.Parse(mainSplit[2] + "")-1000);
+            Console.WriteLine("@readHealthPackL health pack added " + x + " " + y);
             collect_resources.health_pack_queue.Add(health_pack);
             grid[x, y] = health_pack;
         }
@@ -344,8 +346,6 @@ namespace tank_game
             }
         }
         #endregion
-
-
 
 
         /// <summary>

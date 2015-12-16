@@ -39,8 +39,18 @@ namespace tank_game
                     SearchMethods.pathEvaluationBFS(players[i].cordinateX, players[i].cordinateY);
                     for (int j = 0; j < coin_queue.Count; j++)
                     {
-                        List<int> coin_command_list = SearchMethods.commandList(SearchMethods.getPath
+                        List<int> coin_command_list = new List<int>();
+                        List<int> routeL = SearchMethods.checkLrout(players[i].cordinateX, players[i].cordinateY, coin_queue[j].x_cordinate, coin_queue[j].y_cordinate, i);
+                        if (routeL != null)
+                        {
+                            coin_command_list = SearchMethods.commandList(routeL, players[i].direction);
+                        }
+                        else
+                        {
+                            coin_command_list = SearchMethods.commandList(SearchMethods.getPath
                             (coin_queue[j].x_cordinate, coin_queue[j].y_cordinate), players[i].direction);
+                        }
+                        
                         if (coin_command_list != null && ((coin_queue[j].left_time / 1000) > coin_command_list.Count()))
                         {
                             coin_cost_grid[i, j] = coin_command_list.Count;
@@ -176,8 +186,12 @@ namespace tank_game
                 bool vanished = coin_queue[i].timer_update();
                 if (vanished)
                 {
+                    Console.WriteLine("Timer Updated->coin pile vanished at " + coin_queue[i].x_cordinate + " "
+                       + coin_queue[i].y_cordinate);
                     grid[coin_queue[i].x_cordinate, coin_queue[i].y_cordinate] = new EmptyCell();
                     coin_queue.RemoveAt(i);
+                   
+                
                 }
             }
         }
@@ -188,8 +202,11 @@ namespace tank_game
                 bool vanished = health_pack_queue[i].timer_update();
                 if (vanished)
                 {
+                    Console.WriteLine("Timer Updated->health pack vanished at " + health_pack_queue[i].x_cordinate + " "
+                        + health_pack_queue[i].y_cordinate);
                     grid[health_pack_queue[i].x_cordinate, health_pack_queue[i].y_cordinate] = new EmptyCell();
                     health_pack_queue.RemoveAt(i);
+                    
                 }
             }
         }

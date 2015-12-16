@@ -1,5 +1,5 @@
 using System;
-
+using tank_game;
 namespace Tankiya
 {
 #if WINDOWS || XBOX
@@ -10,10 +10,22 @@ namespace Tankiya
         /// </summary>
         static void Main(string[] args)
         {
-            using (Game1 game = new Game1())
+            using (GameUI game = new GameUI())
             {
                 game.Run();
+              
             }
+            try
+            {
+
+                Console.Title = "Mustank Console";
+                Console.WriteLine("Client started...");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception Ocured");
+            }
+           
         }
     }
 #endif

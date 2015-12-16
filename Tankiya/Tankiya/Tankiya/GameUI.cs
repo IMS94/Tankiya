@@ -17,13 +17,13 @@ namespace Tankiya
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class GameUI : Microsoft.Xna.Framework.Game
     {
+        #region XNA Variables
+        
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
         GraphicsDevice device;
-
         Texture2D backgroundTexture;
         Texture2D foregroundTexture;
         Texture2D tankTexture;
@@ -31,15 +31,13 @@ namespace Tankiya
         Texture2D brickTexture;
         Texture2D coinTexture;
         Texture2D stoneTexture;
-
+        Texture2D healthTexture;
         KeyboardState keyboardState;
-
-
         int screenWidth;
         int screenHeight;
         int gridWidth;
 
-
+        #endregion
 
         /**
          * Command sender and similar variables to connect with the server.
@@ -51,12 +49,10 @@ namespace Tankiya
         /// <summary>
         /// Colors array to color the tanks
         /// </summary>
-        private Color[] playerColors = new Color[] { Color.Purple, Color.Brown, Color.Yellow, Color.Pink, Color.LightBlue };
+        private Color[] playerColors = new Color[] { Color.LightBlue, Color.Brown, Color.Yellow, Color.Pink,Color.Purple };
 
 
-
-
-        public Game1()
+        public GameUI()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -110,6 +106,7 @@ namespace Tankiya
             brickTexture = Content.Load<Texture2D>("brick");
             coinTexture = Content.Load<Texture2D>("coin");
             stoneTexture = Content.Load<Texture2D>("stone");
+            healthTexture = Content.Load<Texture2D>("health");
 
         }
 
@@ -142,7 +139,7 @@ namespace Tankiya
 
 
 
-
+        #region Read Inputs from Keyboard
         /// <summary>
         /// Read the keyboard inputs and call the command sender class to give the corresponding response
         /// </summary>
@@ -159,6 +156,7 @@ namespace Tankiya
                     commandSender.Join();
                 }
             }
+
 
             //if "Space" is pressed, send the command to shoot
             if (newState.IsKeyDown(Keys.Space))
@@ -206,11 +204,37 @@ namespace Tankiya
                 }
             }
 
+            if (newState.IsKeyDown(Keys.C))
+            {
+                if (!keyboardState.IsKeyDown(Keys.C))
+                {
+                    map.playingMethod = 0;
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.H))
+            {
+                if (!keyboardState.IsKeyDown(Keys.H))
+                {
+                    map.playingMethod = 1;
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.A))
+            {
+                if (!keyboardState.IsKeyDown(Keys.A))
+                {
+                    map.playingMethod = 2;
+                }
+            }
+
             keyboardState = newState;
         }
 
+        #endregion
 
 
+        #region Methods to Draw Map Objects
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -221,6 +245,7 @@ namespace Tankiya
             GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
+            
             DrawScenery();
 
             DrawObstacles();
@@ -281,34 +306,35 @@ namespace Tankiya
             Player[] players = Map.GetInstance().GetPlayers();
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i] != null && players[i].health>0)
+                if (players[i] != null && players[i].health > 0)
                 {
 
-                    spriteBatch.Draw(tankTexture, new Vector2(players[i].cordinateX*60+30, players[i].cordinateY*60+30),
+                    spriteBatch.Draw(tankTexture, new Vector2(players[i].cordinateX * 60 + 30, players[i].cordinateY * 60 + 30),
                         null, playerColors[i], GetRotation(players[i].direction), new Vector2(30, 30), 1, SpriteEffects.None, 1);
-                
+
                 }
             }
         }
 
-
-
-
         /// <summary>
-        /// Draws the obstacles in the map. Stone, water brick and coins
+        /// Draws the obstacles in the map. Stone, water brick coins and health packs
         /// </summary>
-        private void DrawObstacles() { 
+        private void DrawObstacles()
+        {
+            
             MapItem[,] grid = Map.GetInstance().GetGrid();
-            for (int i = 0; i < grid.GetLength(0);i++ )
+            for (int i = 0; i < grid.GetLength(0); i++)
             {
-                for (int j = 0; j < grid.GetLength(1); j++) { 
-                    
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+
                     /**
                      * Draw water
                      */
-                    if(grid[i,j]!=null && grid[i, j].GetType()==typeof(Water)){
+                    if (grid[i, j] != null && grid[i, j].GetType() == typeof(Water))
+                    {
 
-                        spriteBatch.Draw(waterTexture, new Vector2(i* 60 , j * 60 ),
+                        spriteBatch.Draw(waterTexture, new Vector2(i * 60, j * 60),
                         null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
 
                     }
@@ -333,6 +359,15 @@ namespace Tankiya
                     }
 
                     /**
+                     * Draw HealthPack
+                     */
+                    else if (grid[i, j] != null && grid[i, j].GetType() == typeof(HealthPack))
+                    {
+                        spriteBatch.Draw(healthTexture, new Vector2(i * 60, j * 60),
+                        null, Color.White, 0, new Vector2(0, 0), 1, SpriteEffects.None, 1);
+                    }
+
+                    /**
                      * Draw stones
                      */
                     else if (grid[i, j] != null && grid[i, j].GetType() == typeof(Stone))
@@ -342,20 +377,22 @@ namespace Tankiya
                     }
 
                 }
-                
+
             }
         }
 
-/*
-        0 North
-        1 East,
-        2 South 
-        3 West 
- */
+        /*
+                0 North
+                1 East,
+                2 South 
+                3 West 
+         */
 
 
-        private float GetRotation(int direction) {
-            switch (direction) { 
+        private float GetRotation(int direction)
+        {
+            switch (direction)
+            {
                 case 0:
                     return ToRadian(0);
                     break;
@@ -371,15 +408,13 @@ namespace Tankiya
             }
 
             return 0;
-        
+
         }
 
-        private float ToRadian(int degrees) {
+        private float ToRadian(int degrees)
+        {
             return (float)(Math.PI / 180) * degrees;
         }
-
-
-
 
         /// <summary>
         /// Generates the grid where the game will be played. A 10x10 grid
@@ -396,12 +431,12 @@ namespace Tankiya
                     grid[i + screenWidth * j] = Color.Transparent;
                     if (i % gridWidth == 0)
                     {
-                        grid[i + screenWidth * j] = Color.White;
+                        grid[i + screenWidth * j] = Color.DarkGreen;
                     }
 
                     if (j % gridWidth == 0)
                     {
-                        grid[i + screenWidth * j] = Color.White;
+                        grid[i + screenWidth * j] = Color.DarkGreen;
                     }
                 }
             }
@@ -410,3 +445,5 @@ namespace Tankiya
         }
     }
 }
+
+        #endregion
