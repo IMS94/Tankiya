@@ -66,31 +66,38 @@ namespace tank_game
 
             while (true)
             {
-                //connection is connected socket
-                connection = listener.AcceptSocket();
-                if (connection.Connected)
+                try
                 {
-                    //To read from socket create NetworkStream object associated with socket
-                    this.readStream = new NetworkStream(connection);
-
-                    SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
-                    string s = connection.RemoteEndPoint.ToString();
-                    List<Byte> inputStr = new List<byte>();
-
-                    int asw = 0;
-                    while (asw != -1)
+                    //connection is connected socket
+                    connection = listener.AcceptSocket();
+                    if (connection.Connected)
                     {
-                        asw = this.readStream.ReadByte();
-                        inputStr.Add((Byte)asw);
+                        //To read from socket create NetworkStream object associated with socket
+                        this.readStream = new NetworkStream(connection);
+
+                        SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
+                        string s = connection.RemoteEndPoint.ToString();
+                        List<Byte> inputStr = new List<byte>();
+
+                        int asw = 0;
+                        while (asw != -1)
+                        {
+                            asw = this.readStream.ReadByte();
+                            inputStr.Add((Byte)asw);
+                        }
+
+                        readMsg = Encoding.UTF8.GetString(inputStr.ToArray());
+                        //Console.WriteLine("\n" + readMsg);                          //read input
+                        this.readStream.Close();
+
+                        map.read(readMsg);
+
+
                     }
-
-                    readMsg = Encoding.UTF8.GetString(inputStr.ToArray());
-                    //Console.WriteLine("\n" + readMsg);                          //read input
-                    this.readStream.Close();
-
-                    map.read(readMsg);
-
-
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
                 }
                 //   }
                 //}
@@ -145,7 +152,53 @@ namespace tank_game
                 this.server.Close();
             }
         }
+
+        public void Manual_Send_Open()
+        { 
+            this.server = new TcpClient();
+            try
+            {
+
+
+                this.server.Connect(IP, SENDING_PORT);
+            }
+            catch
+            { }
+        }
+
+        public void Manual_Send_Close()
+        {
+            this.server.Close();
+        }
+
+        public void Manual_Send(String msg)
+        {
+            try{
+                    if (this.server.Connected)
+                    {
+                        //To write to the socket
+                        this.sendStream = server.GetStream();
+
+                        //Create objects for writing across stream
+                        this.writer = new BinaryWriter(sendStream);
+                        Byte[] tempStr = Encoding.ASCII.GetBytes(msg);
+
+                        //writing to the port                
+                        this.writer.Write(tempStr);
+                        //Console.WriteLine("\t Data: " + msg + " is written to " + IP);
+                        this.writer.Close();
+                        this.sendStream.Close();
+                    }
+                }
+            
+            catch (Exception e)
+            {
+                Console.WriteLine("Communication (WRITING) to " + IP+" Failed! \n " + e.Message);
+            }
         
+        }
+
+
         #endregion
     }
 }

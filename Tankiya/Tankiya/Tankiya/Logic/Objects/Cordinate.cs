@@ -5,7 +5,7 @@ using System.Text;
 
 namespace tank_game
 {
-    class Cordinate
+    public class Cordinate
     {
         public int x { get; set; }
         public int y { get; set; }

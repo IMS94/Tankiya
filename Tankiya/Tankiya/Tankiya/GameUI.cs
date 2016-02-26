@@ -157,8 +157,6 @@ namespace Tankiya
                 }
             }
 
-
-            //if "Space" is pressed, send the command to shoot
             if (newState.IsKeyDown(Keys.Space))
             {
                 if (!keyboardState.IsKeyDown(Keys.Space))
@@ -167,68 +165,88 @@ namespace Tankiya
                 }
             }
 
-
-            //if "Up" is pressed, send the command to go up
-            if (newState.IsKeyDown(Keys.Up))
-            {
-                if (!keyboardState.IsKeyDown(Keys.Up))
-                {
-                    commandSender.Up();
-                }
-            }
-
-            //if "Down" is pressed, send the command to go down
-            if (newState.IsKeyDown(Keys.Down))
-            {
-                if (!keyboardState.IsKeyDown(Keys.Down))
-                {
-                    commandSender.Down();
-                }
-            }
-
-            //if "Left" is pressed, send the command to go Left
-            if (newState.IsKeyDown(Keys.Left))
-            {
-                if (!keyboardState.IsKeyDown(Keys.Left))
-                {
-                    commandSender.Left();
-                }
-            }
-
-            //if "Right" is pressed, send the command to go right
-            if (newState.IsKeyDown(Keys.Right))
-            {
-                if (!keyboardState.IsKeyDown(Keys.Right))
-                {
-                    commandSender.Right();
-                }
-            }
-
-            if (newState.IsKeyDown(Keys.C))
-            {
-                if (!keyboardState.IsKeyDown(Keys.C))
-                {
-                    map.playingMethod = 0;
-                }
-            }
-
-            if (newState.IsKeyDown(Keys.H))
-            {
-                if (!keyboardState.IsKeyDown(Keys.H))
-                {
-                    map.playingMethod = 1;
-                }
-            }
+            
 
             if (newState.IsKeyDown(Keys.A))
             {
                 if (!keyboardState.IsKeyDown(Keys.A))
                 {
+                    map.playingMethod = 0;
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.S))
+            {
+                if (!keyboardState.IsKeyDown(Keys.S))
+                {
+                    map.playingMethod = 1;
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.D))
+            {
+                if (!keyboardState.IsKeyDown(Keys.D))
+                {
                     map.playingMethod = 2;
                 }
             }
 
-            keyboardState = newState;
+            if (newState.IsKeyDown(Keys.F))
+            {
+                if (!keyboardState.IsKeyDown(Keys.F))
+                {
+                    map.playingMethod = 3;
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.NumPad1))
+            {
+                if (!keyboardState.IsKeyDown(Keys.NumPad1))
+                {
+                    map.op_id=1;
+                    Console.WriteLine("opponent selected :1");
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.NumPad2))
+            {
+                if (!keyboardState.IsKeyDown(Keys.NumPad2))
+                {
+                    map.op_id = 2;
+                    Console.WriteLine("opponent selected :2");
+               
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.NumPad3))
+            {
+                if (!keyboardState.IsKeyDown(Keys.NumPad3))
+                {
+                    map.op_id = 3;
+                    Console.WriteLine("opponent selected :3");
+               
+                }
+            }
+
+            if (newState.IsKeyDown(Keys.NumPad0))
+            {
+                if (!keyboardState.IsKeyDown(Keys.NumPad0))
+                {
+                    map.op_id = 0;
+                    Console.WriteLine("opponent selected :0");
+               
+                }
+            }
+            
+            if (newState.IsKeyDown(Keys.NumPad4))
+            {
+                if (!keyboardState.IsKeyDown(Keys.NumPad4))
+                {
+                    map.op_id = 4;
+                    Console.WriteLine("opponent selected :4");
+               
+                }
+            }
         }
 
         #endregion

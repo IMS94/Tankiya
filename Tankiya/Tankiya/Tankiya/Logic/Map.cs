@@ -16,16 +16,11 @@ namespace tank_game
         public Battle battle ;
         public CollectResources collect_resources;
 
+        public int op_id;//temparay var for keyboard check;
+
         //The map instance to be used all over the game
         private static Map map;
         
-        /* playing method will be decided on this value
-           
-         *          0  ---------------- collect coin piles
-         *          1  ---------------- collect health packs
-         *          2------------------ attack player
-         
-        */
         public int playingMethod { get; set; }
 
         private Player[] players; //players
@@ -50,12 +45,14 @@ namespace tank_game
             player_count = 1;
             SearchMethods search_methods = new SearchMethods(grid, players, myid, player_count);
             collect_resources = new CollectResources(grid,players,myid,player_count,search_methods);
+            battle = new Battle(grid, players, myid, search_methods);
             search_methods.clearMapForBFS();
             com = Communicator.getInstance();
             com.StartListening();
             map_string = "";
             playingMethod = 0;
-        } //Constructor to initialize map with all EmptyCells
+            op_id = 1;
+            } //Constructor to initialize map with all EmptyCells
 
         /// <summary>
         /// Get the map instance. This is to make this class a singleton.
@@ -109,6 +106,7 @@ namespace tank_game
         #endregion
 
         #region Map update functions
+
         private void updateWorld() {
             collect_resources.updateCoinAqquire();
             collect_resources.updateHealthPackAqquire();
@@ -275,12 +273,12 @@ namespace tank_game
             foreach (Coin coin in collect_resources.coin_queue)
             {
                 
-                Console.WriteLine("@readmovingG : Coin Piles in queue " + coin.x_cordinate + " " + coin.y_cordinate +"     "+coin.left_time);
+           //     Console.WriteLine("@readmovingG : Coin Piles in queue " + coin.x_cordinate + " " + coin.y_cordinate +"     "+coin.left_time);
             }
             foreach (HealthPack hp in collect_resources.health_pack_queue)
             {
 
-                Console.WriteLine("@readmovingG : Health Pack in queue " + hp.x_cordinate + " " + hp.y_cordinate+"     "+hp.left_time);
+           //     Console.WriteLine("@readmovingG : Health Pack in queue " + hp.x_cordinate + " " + hp.y_cordinate+"     "+hp.left_time);
             }
             
         }
@@ -313,17 +311,70 @@ namespace tank_game
 
         #region Main Methods
 
+        /* playing method will be decided on this value
+           
+         *          0  ---------------- collect coin piles
+         *          1  ---------------- collect health packs
+         *          2------------------ follow and attack
+         *          3------------------ attack player
+         
+        */
+
+        public void collect_coin()
+        {
+            sendCommandToServer(collect_resources.collectCoin());    
+        }
+        public void collect_health_pack()
+        {
+            sendCommandToServer(collect_resources.collectHealthPack());
+        }
+        public void follow_and_attack()
+        {
+            if (this.op_id != myid && this.op_id < player_count)
+            {
+                List<int> list =battle.follow_and_attack(this.op_id);
+                if (list != null)
+                {
+                    sendCommandToServer(list);
+                }
+            }
+        }
+
+        public void attack_only_danger()
+        {
+            if (this.op_id != myid && this.op_id < player_count)
+            {
+                int attack_value = battle.attack(this.op_id);
+                if (attack_value >= 0 && attack_value < 4)
+                {
+                    sendCommandToServer(attack_value);
+                }
+                else if(attack_value<0)
+                {
+                    sendCommandToServer(collect_resources.collectCoin());
+                }
+            }
+        }
         public void gamePlay()
         {
+
+
             if (playingMethod == 0) 
             {
-                sendCommandToServer(collect_resources.collectCoin());    
+                collect_coin();        
             }
             else if (playingMethod == 1) 
             {
-                sendCommandToServer(collect_resources.collectHealthPack());
+                collect_health_pack();
             }
-                
+            else if (playingMethod == 2)
+            {
+                follow_and_attack();    
+            }
+            else if (playingMethod == 3)
+            {
+                attack_only_danger();
+            }
         }
 
         public void sendCommandToServer(List<int> commandList)
@@ -345,8 +396,17 @@ namespace tank_game
 
             }
         }
-        #endregion
+        public void sendCommandToServer(int command)
+        {
 
+                if (command == 0) { basicCommandSender.Up(); }
+                else if (command == 1) { basicCommandSender.Right(); }
+                else if (command == 2) { basicCommandSender.Down(); }
+                else if (command == 3) { basicCommandSender.Left(); }
+
+        }
+       
+        #endregion
 
         /// <summary>
         /// Get the players array for external use

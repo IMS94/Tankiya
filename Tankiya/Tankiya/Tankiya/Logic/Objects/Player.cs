@@ -10,6 +10,7 @@ namespace tank_game
     public class Player : UnmovableMapItem
     {
        
+        //0 north      1 east     2 south    3 west
         public int direction { get; set; }
         public int whetherShot { get; set; }
         public int health { get; set; }
