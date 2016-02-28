@@ -18,18 +18,20 @@ namespace tank_game
         private int my_x;
         private int my_y;
         private SearchMethods search_methods;
-        private Thread shooting_tread;
+        private Thread shooting_thread;
         Communicator com = Communicator.getInstance();
-        
+        private Bullet bullet;
+        private int player_count;
                 
 
-        public Battle(MapItem[,] gridE, Player[] playersE, int my_idE, SearchMethods searchMethods)
+        public Battle(MapItem[,] gridE, Player[] playersE, int player_countE,int my_idE, SearchMethods searchMethods,Bullet bulletE)
         {
             my_id = my_idE;
             players = playersE;
             grid=gridE;
             search_methods = searchMethods;
-            
+            bullet = bulletE;
+            player_count = player_countE;
         }
         
         //if any oponent is on sight //use for shoot
@@ -41,13 +43,39 @@ namespace tank_game
 
             this.my_x = players[my_id].cordinateX;
             this.my_y = players[my_id].cordinateY;
-            if (my_x == op_x && ((my_y > op_y && players[my_id].direction == 2) ||(my_y < op_y && players[my_id].direction == 0) ))
+            if (my_x == op_x && ((my_y > op_y && players[my_id].direction == 0) ||(my_y < op_y && players[my_id].direction == 2) ))
             {
+                Console.WriteLine("on_sight caught : my_x=" + my_x + " my_y=" + my_y + "    op_x=" + op_x + " op_y="+  op_y);
                 return Math.Abs(my_y-op_y);
+                
             }
             else if (my_y == op_y && ((my_x > op_x && players[my_id].direction == 3) || (my_x < op_x && players[my_id].direction == 1)))
             {
-                return Math.Abs(my_x-op_x);
+                Console.WriteLine("on_sight caught : my_x=" + my_x + " my_y=" + my_y + "    op_x=" + op_x + " op_y=" + op_y);
+                return Math.Abs(my_x - op_x);
+                
+            }
+            return -1;
+        }
+
+        //if any opponent in same line //use for select the oponent
+        public int on_line(int op_id)
+        {
+            if (my_id == op_id) { return -1; }
+            int op_x = players[op_id].cordinateX;
+            int op_y = players[op_id].cordinateY;
+
+            this.my_x = players[my_id].cordinateX;
+            this.my_y = players[my_id].cordinateY;
+            if (my_x == op_x && (my_y != op_y))
+            {
+                return Math.Abs(my_y - op_y);
+
+            }
+            else if (my_y == op_y && my_x != op_x )
+            {
+                return Math.Abs(my_x - op_x);
+
             }
             return -1;
         }
@@ -62,26 +90,32 @@ namespace tank_game
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
 
+            //if on sight
             if (on_sight(op_id) > 0 && players[op_id].health>0) {
                 start_shooting_thread();
                 return 5;
             }
             
+
+            //if on same line
             else if (my_x == op_x ) 
             {
-                if (my_y - op_y > 0) { return 2; }
-                else { return 0; } 
+                if (my_y - op_y > 0) { return 0; }
+                else { return 2; } 
             }
             else if (my_y == op_y)
             {
                 if (my_x - op_x > 0) { return 3; }
                 else { return 1; }
             }
+
+            // if attakable
             else if (is_attakable(op_id) > 0)
             {
                 return is_attakable(op_id);
             }
             
+            //none attacking ability
             return -1;
         
          }
@@ -89,19 +123,21 @@ namespace tank_game
         //shooting thread manager
         public void start_shooting_thread()
         {
-            if (shooting_tread == null)
+            if (shooting_thread == null)
             {
-                shooting_tread = new Thread(shoot);
-                shooting_tread.Start();
+                shooting_thread = null;
+                shooting_thread = new Thread(shoot);
+                shooting_thread.Start();
             }
             else
             {
-                if (shooting_tread.ThreadState.ToString().Equals("Stopped"))
+                if (shooting_thread.ThreadState.ToString().Equals("Stopped"))
                 {
                     try
                     {
-                        shooting_tread = new Thread(shoot);
-                        shooting_tread.Start();
+                        shooting_thread = null;
+                        shooting_thread = new Thread(shoot);
+                        shooting_thread.Start();
                         Console.WriteLine("Thread started successfully");
                     }
                     catch (Exception ex)
@@ -112,7 +148,7 @@ namespace tank_game
                 }
                 else
                 {
-                    Console.WriteLine("Thread started failed Current Thread Status : " + shooting_tread.ThreadState.ToString());
+                    Console.WriteLine("Thread started failed Current Thread Status : " + shooting_thread.ThreadState.ToString());
 
                 }
             }
@@ -125,7 +161,6 @@ namespace tank_game
 
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
-           // int tot_wait = 0;
             int distance=1;
             while (distance > 0 && players[op_id].health > 0)
             {
@@ -133,11 +168,11 @@ namespace tank_game
                 if (distance > 0 && players[op_id].health>0)
                 {
                     com.SendData(Constant.SHOOT);
+                    this.bullet = new Bullet(my_id, grid, players, player_count);
                     int waiting_time = (int)((float)distance * 1000 / 3) + 1;
                     Console.WriteLine("Shoot on P:" + op_id);
                     Thread.Sleep(waiting_time);
-                //    tot_wait += waiting_time;
-                }
+                 }
             }
         }
 
@@ -169,8 +204,7 @@ namespace tank_game
 
             if (Math.Abs(my_x - op_x) == 1)
             {
-                if (is_movable_only_verticle(op_x, my_y, op_y) && (((my_y - op_y) > 0 && players[player_id].direction != 0) ||
-                    ((my_y - op_y) < 0 && players[player_id].direction != 2)))
+                if (is_movable_only_verticle(op_x, my_y, op_y) && my_y!= op_y)
                 {
                     if (my_x - op_x > 0)
                     {
@@ -184,16 +218,15 @@ namespace tank_game
             }
             else if (Math.Abs(my_y - op_y) == 1)
             {
-                if (is_movable_only_horizontal(my_x, op_x, op_y) && (((my_x - op_x) > 0 && players[player_id].direction != 1) ||
-                    ((my_x - op_x) < 0 && players[player_id].direction != 3)))
+                if (is_movable_only_horizontal(my_x, op_x, op_y) && my_x!=op_x)
                 {
                     if (my_y - op_y > 0)
                     {
-                        return 2;
+                        return 0;
                     }
                     else
                     {
-                        return 0;
+                        return 2;
                     }
                 }
 

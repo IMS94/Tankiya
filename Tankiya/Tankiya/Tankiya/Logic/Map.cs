@@ -13,6 +13,7 @@ namespace tank_game
         public int myid { get; set; } //my client id in the game
         public String map_string { get; set; } //map character grid string for cmd
 
+        public Bullet bullet; // bullet reference use to update bullet in GUI
         public Battle battle ;
         public CollectResources collect_resources;
         public int read_count = 0;
@@ -27,6 +28,7 @@ namespace tank_game
         private BasicCommandReader basicCommandReader=new BasicCommandReader();
         private BasicCommandSender basicCommandSender=new BasicCommandSender();
         private Communicator com;
+
         public String current_mode_discription { get; set; }
         
         #endregion
@@ -45,7 +47,7 @@ namespace tank_game
             player_count = 1;
             SearchMethods search_methods = new SearchMethods(grid, players, myid, player_count);
             collect_resources = new CollectResources(grid,players,myid,player_count,search_methods);
-            battle = new Battle(grid, players, myid, search_methods);
+            battle = new Battle(grid,players,player_count,myid,search_methods,bullet);
             search_methods.clearMapForBFS();
             com = Communicator.getInstance();
             com.StartListening();
@@ -318,42 +320,57 @@ namespace tank_game
 
         /* playing method will be decided on this value
            
-         *          0  ---------------- collect coin piles
-         *          1  ---------------- collect health packs
-         *          3------------------ follow and attack
-         *          2------------------ attack player
+         *          0  ----------------safely collect coin piles (attack if needed)
+         *          1  ----------------safely collect health packs(attack if needed)
+         *          2------------------ follow and attack (chase and attack opponent)
          
         */
 
-        public void collect_coin()
+        public void safe_coin_collect()
         {
-            if (collect_resources.collectCoin().Count != 0)
+            if (this.op_id != myid && this.op_id < player_count)
             {
-                //sendCommandToServer(collect_resources.collectCoin());
+                int attack_value = battle.attack(this.op_id);
+                if (attack_value >= 0 && attack_value < 4)
+                {
+                    sendCommandToServer(attack_value);
+                }
+                else if (attack_value < 0)
+                {
+                    if (collect_resources.collectCoin().Count != 0)
+                    {
+                        sendCommandToServer(collect_resources.collectCoin());
+                    }
+                    else if (collect_resources.collectHealthPack().Count != 0)
+                    {
+                        sendCommandToServer(collect_resources.collectHealthPack());
+                    }
+                }
             }
-            else if (collect_resources.collectHealthPack().Count != 0)
-            {
-                sendCommandToServer(collect_resources.collectHealthPack());
-            }
-            else
-            {
-                attack_only_danger();
-            }
+           
 
         }
-        public void collect_health_pack()
+        public void safe_health_pack_collect()
         {
-            if (collect_resources.collectHealthPack().Count != 0)
+            if (this.op_id != myid && this.op_id < player_count)
             {
-                sendCommandToServer(collect_resources.collectHealthPack());
-            } 
-            else if (collect_resources.collectCoin().Count != 0)
-            {
-                sendCommandToServer(collect_resources.collectCoin());
-            }
-            else
-            {
-                attack_only_danger();
+                int attack_value = battle.attack(this.op_id);
+                if (attack_value >= 0 && attack_value < 4)
+                {
+                    sendCommandToServer(attack_value);
+                }
+                else if (attack_value < 0)
+                {
+                    if (collect_resources.collectHealthPack().Count != 0)
+                    {
+                        sendCommandToServer(collect_resources.collectHealthPack());
+                    }
+                    else if (collect_resources.collectCoin().Count != 0)
+                    {
+                        sendCommandToServer(collect_resources.collectCoin());
+                    }
+                   
+                }
             }
     
         }
@@ -369,29 +386,14 @@ namespace tank_game
             }
         }
 
-        public void attack_only_danger()
-        {
-            if (this.op_id != myid && this.op_id < player_count)
-            {
-                int attack_value = battle.attack(this.op_id);
-                if (attack_value >= 0 && attack_value < 4)
-                {
-                    sendCommandToServer(attack_value);
-                }
-                else if(attack_value<0)
-                {
-                    sendCommandToServer(collect_resources.collectCoin());
-                }
-            }
-        }
-
+      
 
         public void select_opponent()
         {
             List<int> distances = new List<int>();
             for (int i = 0; i < player_count; i++)
             {
-                int distance = battle.on_sight(i);
+                int distance = battle.on_line(i);
                 if (distance > 0) { distances.Add(distance); }
                 else { distances.Add(1000); }
                 if (i != myid && players[i].health > 0) { op_id = i; }
@@ -424,71 +426,44 @@ namespace tank_game
             int player_with_second_max_point = points.IndexOf(points.Max());
 
 
-            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>5 )
+            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>2 )
             {
-                if(playingMethod == 3 && players[op_id].health == 0)
-                {
-                    playingMethod = 0;
-                }
+               
                 if (mustank.health < 50)
                 {
                     playingMethod = 1;
-                    current_mode_discription = "Health Pack collecting mode activated";
+                    current_mode_discription = "Safe Health Pack collecting mode activated";
                     Console.WriteLine(current_mode_discription);
 
-                }
-                else if (player_with_max_points == myid)
-                {
-                    playingMethod = 2;
-                    for (int i = 0; i < player_count; i++)
-                    {
-                        if (i != myid && battle.attack(i) > 0 && players[i].health > 0)
-                        {
-                            op_id = i;
-                            break;
-                        }
-                    }
-                    current_mode_discription = "Attack only in danger mode activated";
-                    Console.WriteLine(current_mode_discription);
-                }
-
-                else if (player_with_second_max_point == myid && mustank.health > 74)
-                {
-                    playingMethod = 0;
-                    current_mode_discription = "Coin collecting only mode activated";
-                    Console.WriteLine(current_mode_discription);
                 }
                 else if ((player_count < 4 && player_with_max_points == myid) || player_with_max_points != myid)
                 {
-                    playingMethod = 3;
-                    for (int i = 0; i < player_count; i++)
-                    {
-                        if (i != myid && players[i].health > 0)
-                        {
-                            op_id = i;
-                            break;
-                        }
-                    }
+                    playingMethod = 2;
                     current_mode_discription = "follow and attack mode activated";
                     Console.WriteLine(current_mode_discription);
                 }
+
+                else if (player_with_max_points == myid)
+                {
+                    playingMethod = 0;
+                    current_mode_discription = "Safe Coin collecting only mode activated";
+                    Console.WriteLine(current_mode_discription);
+                }
+
+                
             }
 
             if (playingMethod == 0)
             {
-                collect_coin();
+                safe_coin_collect();
             }
             else if (playingMethod == 1)
             {
-                collect_health_pack();
-            }
-            else if (playingMethod == 3)
-            {
-                follow_and_attack();
+                safe_health_pack_collect();
             }
             else if (playingMethod == 2)
             {
-                attack_only_danger();
+                follow_and_attack();
             }
             read_count += 1;
         }

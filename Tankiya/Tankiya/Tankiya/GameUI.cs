@@ -27,6 +27,7 @@ namespace Tankiya
         Texture2D backgroundTexture;
         Texture2D foregroundTexture;
         Texture2D tankTexture;
+        Texture2D bulletTexture;
         Texture2D waterTexture;
         Texture2D brickTexture;
         Texture2D coinTexture;
@@ -102,6 +103,7 @@ namespace Tankiya
             foregroundTexture = new Texture2D(device, screenWidth, screenHeight, false, SurfaceFormat.Color);
             foregroundTexture.SetData(GenerateMap());
             tankTexture = Content.Load<Texture2D>("tank_min");
+            bulletTexture=Content.Load<Texture2D>("bullet");
             waterTexture = Content.Load<Texture2D>("water_min");
             brickTexture = Content.Load<Texture2D>("brick");
             coinTexture = Content.Load<Texture2D>("coin");
@@ -161,6 +163,7 @@ namespace Tankiya
                 }
             }
 
+            /*
             if (newState.IsKeyDown(Keys.Space))
             {
                 if (!keyboardState.IsKeyDown(Keys.Space))
@@ -251,6 +254,7 @@ namespace Tankiya
                
                 }
             }
+             * */
         }
 
         #endregion
@@ -273,6 +277,8 @@ namespace Tankiya
             DrawObstacles();
 
             DrawTanks();
+
+            DrawBullet();
 
             spriteBatch.End();
 
@@ -337,6 +343,17 @@ namespace Tankiya
                 }
             }
         }
+        private void DrawBullet()
+        {
+           if(this.map.bullet!=null){
+                if ( map.bullet.isAlive)
+                {
+                    spriteBatch.Draw(bulletTexture, new Vector2(map.bullet.current_cordinate.x * 60 + 30, map.bullet.current_cordinate.y * 60 + 30),
+                    null, Color.White, map.bullet.direction, new Vector2(30, 30), 1, SpriteEffects.None, 1);
+                }
+           }
+        }
+
 
         /// <summary>
         /// Draws the obstacles in the map. Stone, water brick coins and health packs
