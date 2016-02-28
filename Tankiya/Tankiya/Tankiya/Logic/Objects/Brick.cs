@@ -10,11 +10,11 @@ namespace tank_game
     {
 
         public int health { get; set; }
-
         public Brick()
         {
             this.name = "B";
         }
+        
 
     }
 }

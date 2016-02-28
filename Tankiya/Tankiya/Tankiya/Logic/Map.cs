@@ -15,12 +15,11 @@ namespace tank_game
 
         public Battle battle ;
         public CollectResources collect_resources;
-
+        public int read_count = 0;
         public int op_id;//temparay var for keyboard check;
 
         //The map instance to be used all over the game
         private static Map map;
-        
         public int playingMethod { get; set; }
 
         private Player[] players; //players
@@ -28,6 +27,7 @@ namespace tank_game
         private BasicCommandReader basicCommandReader=new BasicCommandReader();
         private BasicCommandSender basicCommandSender=new BasicCommandSender();
         private Communicator com;
+        public String current_mode_discription { get; set; }
         
         #endregion
 
@@ -52,6 +52,7 @@ namespace tank_game
             map_string = "";
             playingMethod = 0;
             op_id = 1;
+            current_mode_discription = "";
             } //Constructor to initialize map with all EmptyCells
 
         /// <summary>
@@ -118,33 +119,39 @@ namespace tank_game
         #region evaluating recieved msgs from communicator functions
         public void read(String read)
         {
-            String readMsg = read.Substring(0, read.Length - 2);
-            Char c = readMsg[0];
-            Console.WriteLine("Type "+c+" found " + readMsg);
-            if (!basicCommandReader.Read(readMsg))
+            try
             {
-                if (c.Equals('S'))
+                String readMsg = read.Substring(0, read.Length - 2);
+                Char c = readMsg[0];
+                Console.WriteLine("Type " + c + " found " + readMsg);
+                if (!basicCommandReader.Read(readMsg))
                 {
-                    readAcceptanceS(readMsg);
-                }
-                else if (c.Equals('I'))
-                {
-                    readInitiationI(readMsg);
-                }
-                else if (c.Equals('G'))
-                {
-                    readMovingG(readMsg);
-                }
-                else if (c.Equals('C'))
-                {
-                    readCoinC(readMsg);
-                }
-                else if (c.Equals('L'))
-                {
-                    readHealthPackL(readMsg);
+                    if (c.Equals('S'))
+                    {
+                        readAcceptanceS(readMsg);
+                    }
+                    else if (c.Equals('I'))
+                    {
+                        readInitiationI(readMsg);
+                    }
+                    else if (c.Equals('G'))
+                    {
+                        readMovingG(readMsg);
+                    }
+                    else if (c.Equals('C'))
+                    {
+                        readCoinC(readMsg);
+                    }
+                    else if (c.Equals('L'))
+                    {
+                        readHealthPackL(readMsg);
+                    }
                 }
             }
-           
+            catch(Exception ex)
+            {
+                //Console.WriteLine("fault message received from the server : " + ex.ToString());
+            }
 
         }
         private void readAcceptanceS(String readMsg)
@@ -264,8 +271,6 @@ namespace tank_game
                         }
 
                     }
-
-
                 }
             }
             updateWorld();
@@ -315,18 +320,42 @@ namespace tank_game
            
          *          0  ---------------- collect coin piles
          *          1  ---------------- collect health packs
-         *          2------------------ follow and attack
-         *          3------------------ attack player
+         *          3------------------ follow and attack
+         *          2------------------ attack player
          
         */
 
         public void collect_coin()
         {
-            sendCommandToServer(collect_resources.collectCoin());    
+            if (collect_resources.collectCoin().Count != 0)
+            {
+                //sendCommandToServer(collect_resources.collectCoin());
+            }
+            else if (collect_resources.collectHealthPack().Count != 0)
+            {
+                sendCommandToServer(collect_resources.collectHealthPack());
+            }
+            else
+            {
+                attack_only_danger();
+            }
+
         }
         public void collect_health_pack()
         {
-            sendCommandToServer(collect_resources.collectHealthPack());
+            if (collect_resources.collectHealthPack().Count != 0)
+            {
+                sendCommandToServer(collect_resources.collectHealthPack());
+            } 
+            else if (collect_resources.collectCoin().Count != 0)
+            {
+                sendCommandToServer(collect_resources.collectCoin());
+            }
+            else
+            {
+                attack_only_danger();
+            }
+    
         }
         public void follow_and_attack()
         {
@@ -355,26 +384,113 @@ namespace tank_game
                 }
             }
         }
+
+
+        public void select_opponent()
+        {
+            List<int> distances = new List<int>();
+            for (int i = 0; i < player_count; i++)
+            {
+                int distance = battle.on_sight(i);
+                if (distance > 0) { distances.Add(distance); }
+                else { distances.Add(1000); }
+                if (i != myid && players[i].health > 0) { op_id = i; }
+
+            }
+            if (distances.Min() != 1000)
+            {
+                int player_with_min_distance = distances.IndexOf(distances.Min());
+                op_id = player_with_min_distance;
+            }
+
+        
+        }
+        //main method which play the game : triggerd by msg reading with the period of 1 second (type G)
         public void gamePlay()
         {
-
-
-            if (playingMethod == 0) 
+            Player mustank = players[myid];
+            List<int> points = new List<int>();
+            
+            for (int i = 0; i < player_count; i++)
             {
-                collect_coin();        
+                points.Add(players[i].points);
             }
-            else if (playingMethod == 1) 
+
+            select_opponent();
+
+
+            int player_with_max_points = points.IndexOf(points.Max());
+            points[player_with_max_points]=0;
+            int player_with_second_max_point = points.IndexOf(points.Max());
+
+
+            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>5 )
+            {
+                if(playingMethod == 3 && players[op_id].health == 0)
+                {
+                    playingMethod = 0;
+                }
+                if (mustank.health < 50)
+                {
+                    playingMethod = 1;
+                    current_mode_discription = "Health Pack collecting mode activated";
+                    Console.WriteLine(current_mode_discription);
+
+                }
+                else if (player_with_max_points == myid)
+                {
+                    playingMethod = 2;
+                    for (int i = 0; i < player_count; i++)
+                    {
+                        if (i != myid && battle.attack(i) > 0 && players[i].health > 0)
+                        {
+                            op_id = i;
+                            break;
+                        }
+                    }
+                    current_mode_discription = "Attack only in danger mode activated";
+                    Console.WriteLine(current_mode_discription);
+                }
+
+                else if (player_with_second_max_point == myid && mustank.health > 74)
+                {
+                    playingMethod = 0;
+                    current_mode_discription = "Coin collecting only mode activated";
+                    Console.WriteLine(current_mode_discription);
+                }
+                else if ((player_count < 4 && player_with_max_points == myid) || player_with_max_points != myid)
+                {
+                    playingMethod = 3;
+                    for (int i = 0; i < player_count; i++)
+                    {
+                        if (i != myid && players[i].health > 0)
+                        {
+                            op_id = i;
+                            break;
+                        }
+                    }
+                    current_mode_discription = "follow and attack mode activated";
+                    Console.WriteLine(current_mode_discription);
+                }
+            }
+
+            if (playingMethod == 0)
+            {
+                collect_coin();
+            }
+            else if (playingMethod == 1)
             {
                 collect_health_pack();
             }
-            else if (playingMethod == 2)
-            {
-                follow_and_attack();    
-            }
             else if (playingMethod == 3)
+            {
+                follow_and_attack();
+            }
+            else if (playingMethod == 2)
             {
                 attack_only_danger();
             }
+            read_count += 1;
         }
 
         public void sendCommandToServer(List<int> commandList)
@@ -415,6 +531,7 @@ namespace tank_game
         public Player[] GetPlayers() {
             return this.players;
         }
-       
+
+      
     }
 }

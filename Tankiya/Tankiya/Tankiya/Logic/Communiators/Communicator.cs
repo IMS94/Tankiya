@@ -34,28 +34,28 @@ namespace tank_game
 
         private Communicator()
         {
-         
+
         }
         public static Communicator getInstance()
         {
             return sc;
         }
-        
+
         public void StartListening() //method to start listning of the communicator
         {
             Thread t = new Thread(ReceiveData);
             t.Start();
-        } 
+        }
 
         public void setMap(Map map)  //set a pointer to the map 
         {
             this.map = map;
         }
 
-        #region Methods of Receive and Send data 
+        #region Methods of Receive and Send data
         public void ReceiveData()
         {
-         //   bool errorOcurred = false;
+            //   bool errorOcurred = false;
             Socket connection = null; //The socket that is listened to       
 
             //Creating listening Socket
@@ -64,12 +64,15 @@ namespace tank_game
             this.listener.Start();
             //Establish connection upon server request
 
+            int count = 1;
             while (true)
             {
                 try
                 {
                     //connection is connected socket
                     connection = listener.AcceptSocket();
+                 //   Console.WriteLine("Connection Status: " + connection.Connected+" connection check counter :"+count);
+                    count += 1;
                     if (connection.Connected)
                     {
                         //To read from socket create NetworkStream object associated with socket
@@ -94,37 +97,32 @@ namespace tank_game
 
 
                     }
+                    else 
+                    {
+                       
+                        connection.Close();
+                        Console.WriteLine("connection_closed");
+                        
+
+                    }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
-                //   }
-                //}
-                //catch (Exception e)
-                //{
-                // Console.WriteLine("Communication (RECEIVING) Failed! \n " + e.Message);
-                // errorOcurred = true;
-                //}
-                // finally
-                // {
-                if (connection != null)
-                    if (connection.Connected)
-                        connection.Close();
-                //    if (errorOcurred)
-                //         this.ReceiveData();
-                // }
+
+                
             }
         }
         public void SendData(String msg)
         {
-            
+
             this.server = new TcpClient();
 
             try
             {
                 {
-                    
+
                     this.server.Connect(IP, SENDING_PORT);
                     if (this.server.Connected)
                     {
@@ -145,7 +143,7 @@ namespace tank_game
             }
             catch (Exception e)
             {
-                Console.WriteLine("Communication (WRITING) to " + IP+" Failed! \n " + e.Message);
+                Console.WriteLine("Communication (WRITING) to " + IP + " Failed! \n " + e.Message);
             }
             finally
             {
@@ -153,52 +151,7 @@ namespace tank_game
             }
         }
 
-        public void Manual_Send_Open()
-        { 
-            this.server = new TcpClient();
-            try
-            {
-
-
-                this.server.Connect(IP, SENDING_PORT);
-            }
-            catch
-            { }
-        }
-
-        public void Manual_Send_Close()
-        {
-            this.server.Close();
-        }
-
-        public void Manual_Send(String msg)
-        {
-            try{
-                    if (this.server.Connected)
-                    {
-                        //To write to the socket
-                        this.sendStream = server.GetStream();
-
-                        //Create objects for writing across stream
-                        this.writer = new BinaryWriter(sendStream);
-                        Byte[] tempStr = Encoding.ASCII.GetBytes(msg);
-
-                        //writing to the port                
-                        this.writer.Write(tempStr);
-                        //Console.WriteLine("\t Data: " + msg + " is written to " + IP);
-                        this.writer.Close();
-                        this.sendStream.Close();
-                    }
-                }
-            
-            catch (Exception e)
-            {
-                Console.WriteLine("Communication (WRITING) to " + IP+" Failed! \n " + e.Message);
-            }
-        
-        }
-
-
+       
         #endregion
     }
 }

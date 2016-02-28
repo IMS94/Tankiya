@@ -45,7 +45,7 @@ namespace Tankiya
          */
         private BasicCommandSender commandSender;
         private Map map;
-
+        private int join_count = 0;
         /// <summary>
         /// Colors array to color the tanks
         /// </summary>
@@ -153,7 +153,11 @@ namespace Tankiya
             {
                 if (!keyboardState.IsKeyDown(Keys.J))
                 {
-                    commandSender.Join();
+                    if (join_count == 0)
+                    {
+                        commandSender.Join();
+                        join_count += 1;
+                    }
                 }
             }
 

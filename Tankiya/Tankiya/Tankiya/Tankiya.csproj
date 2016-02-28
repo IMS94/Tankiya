@@ -81,6 +81,7 @@
     <Compile Include="Logic\Communiators\Communicator.cs" />
     <Compile Include="Logic\Communiators\Constant.cs" />
     <Compile Include="Logic\Map.cs" />
+    <Compile Include="Logic\Objects\Bullet.cs" />
     <Compile Include="Logic\Objects\Brick.cs" />
     <Compile Include="Logic\Objects\Coin.cs" />
     <Compile Include="Logic\Objects\Cordinate.cs" />

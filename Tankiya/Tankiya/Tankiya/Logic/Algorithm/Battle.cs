@@ -18,6 +18,7 @@ namespace tank_game
         private int my_x;
         private int my_y;
         private SearchMethods search_methods;
+        private Thread shooting_tread;
         Communicator com = Communicator.getInstance();
         
                 
@@ -32,11 +33,14 @@ namespace tank_game
         }
         
         //if any oponent is on sight //use for shoot
-        private int on_sight()
+        public int on_sight(int op_id)
         {
+            if (my_id == op_id) { return -1; }
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
 
+            this.my_x = players[my_id].cordinateX;
+            this.my_y = players[my_id].cordinateY;
             if (my_x == op_x && ((my_y > op_y && players[my_id].direction == 2) ||(my_y < op_y && players[my_id].direction == 0) ))
             {
                 return Math.Abs(my_y-op_y);
@@ -47,7 +51,9 @@ namespace tank_game
             }
             return -1;
         }
-        //return rotation direction if on same line ,return next move if is_attackable ,return 5 after shoot done if shooting happen;
+
+        
+        //return rotation direction if on same line ,return next move if is_attackable ,return 5 if shooting enabled ;
         public int attack(int op_id)
         {
             this.op_id = op_id;
@@ -56,9 +62,8 @@ namespace tank_game
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
 
-            if (on_sight() > 0) {
-                Thread t = new Thread(shoot);
-                t.Start();
+            if (on_sight(op_id) > 0 && players[op_id].health>0) {
+                start_shooting_thread();
                 return 5;
             }
             
@@ -80,36 +85,73 @@ namespace tank_game
             return -1;
         
          }
+
+        //shooting thread manager
+        public void start_shooting_thread()
+        {
+            if (shooting_tread == null)
+            {
+                shooting_tread = new Thread(shoot);
+                shooting_tread.Start();
+            }
+            else
+            {
+                if (shooting_tread.ThreadState.ToString().Equals("Stopped"))
+                {
+                    try
+                    {
+                        shooting_tread = new Thread(shoot);
+                        shooting_tread.Start();
+                        Console.WriteLine("Thread started successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Thread started failed although status is stopped: "+ex.ToString());
+                        
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Thread started failed Current Thread Status : " + shooting_tread.ThreadState.ToString());
+
+                }
+            }
+        
+        }
+
         //shoot if on sight
         public void shoot() 
         {
 
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
-
+           // int tot_wait = 0;
             int distance=1;
             while (distance > 0 && players[op_id].health > 0)
             {
-                distance = on_sight();
+                distance = on_sight(op_id);
                 if (distance > 0 && players[op_id].health>0)
                 {
                     com.SendData(Constant.SHOOT);
                     int waiting_time = (int)((float)distance * 1000 / 3) + 1;
                     Console.WriteLine("Shoot on P:" + op_id);
                     Thread.Sleep(waiting_time);
+                //    tot_wait += waiting_time;
                 }
             }
         }
+
+        //follow and attack any given target
         public List<int> follow_and_attack(int op_id)
         {
             my_x = players[my_id].cordinateX;
             my_y = players[my_id].cordinateY;
 
             this.op_id = op_id;
-            if (on_sight() > 0)
+            if (on_sight(op_id) > 0)
             {
-                Thread t = new Thread(shoot);
-                t.Start();
+
+                start_shooting_thread();
                 return null;
             }
             else
@@ -117,6 +159,8 @@ namespace tank_game
                 return search_methods.getCommandList(my_x,my_y,players[op_id].cordinateX,players[op_id].cordinateY,my_id);
             }
         }
+
+        //is_attackable = check if the mustank can be attacked by any opponent after one position change in the map
         //return the next direction to move if attackable for a player else -1
         private int is_attakable(int player_id)
         {
@@ -158,6 +202,8 @@ namespace tank_game
 
             return -1;
         }
+
+        //check any verticle cell range is attackable(a bullet can penetrate)
         private bool is_movable_only_verticle(int x ,int y_start,int y_end)
         {
             if (y_start > y_end) { return check_verticle_free_value_depend(x, y_end, y_start); }
@@ -168,14 +214,16 @@ namespace tank_game
         {
             for (int i = y_small; i <= y_large; i++)
             {
-                if (!(grid[x, i].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")))
+                if (!(grid[x, i].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem") || (grid[x, i].GetType().ToString().Equals("tank_game.Water"))))
                 {
                     return false;
                 }
             }
             return true;
 
-        }  
+        }
+  
+        //check if any horizontal range is attackable(a bullet can penetrate)
         private bool is_movable_only_horizontal(int x_start, int x_end, int y)
         {
             if (x_start > x_end) { return check_horizontal_free_value_depend(x_end, x_start, y);} 
@@ -186,7 +234,7 @@ namespace tank_game
         {
             for (int i = x_small; i <= x_large; i++)
             {
-                if (!(grid[i, y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")))
+                if (!((grid[i, y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")) || (grid[i,y].GetType().ToString().Equals("tank_game.Water"))))
                 {
                     return false;
                 }

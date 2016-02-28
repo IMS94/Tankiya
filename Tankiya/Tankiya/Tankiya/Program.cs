@@ -21,7 +21,7 @@ namespace Tankiya
                 Console.Title = "Mustank Console";
                 Console.WriteLine("Client started...");
             }
-            catch (Exception ex)
+            catch 
             {
                 Console.WriteLine("Exception Ocured");
             }
