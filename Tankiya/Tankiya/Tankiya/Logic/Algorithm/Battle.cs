@@ -61,7 +61,8 @@ namespace tank_game
         //if any opponent in same line //use for select the oponent
         public int on_line(int op_id)
         {
-            if (my_id == op_id) { return -1; }
+            
+            if (my_id == op_id || players[op_id].health==0) { return -1; }
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
 
@@ -125,13 +126,12 @@ namespace tank_game
         {
             if (shooting_thread == null)
             {
-                shooting_thread = null;
                 shooting_thread = new Thread(shoot);
                 shooting_thread.Start();
             }
             else
             {
-                if (shooting_thread.ThreadState.ToString().Equals("Stopped"))
+                if (shooting_thread.ThreadState.ToString().Equals("Stopped") )
                 {
                     try
                     {
@@ -162,18 +162,24 @@ namespace tank_game
             int op_x = players[op_id].cordinateX;
             int op_y = players[op_id].cordinateY;
             int distance=1;
+            Console.WriteLine("Before while loop in shoot Distance :" + distance + "     Health :" + players[op_id].health  +"Op _id :"+op_id);
+            
             while (distance > 0 && players[op_id].health > 0)
             {
+                Console.WriteLine("Before if in shoot Distance :" + distance + "     Health :" + players[op_id].health);
+            
                 distance = on_sight(op_id);
                 if (distance > 0 && players[op_id].health>0)
                 {
+                    Console.WriteLine("After if in shoot Distance :" + distance +"     Health :"+players[op_id].health);
                     com.SendData(Constant.SHOOT);
-                    this.bullet = new Bullet(my_id, grid, players, player_count);
+                 //   this.bullet = new Bullet(my_id, grid, players, player_count);
                     int waiting_time = (int)((float)distance * 1000 / 3) + 1;
                     Console.WriteLine("Shoot on P:" + op_id);
                     Thread.Sleep(waiting_time);
                  }
             }
+            
         }
 
         //follow and attack any given target

@@ -57,6 +57,7 @@ namespace Tankiya
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+           
         }
 
         /// <summary>
@@ -74,7 +75,7 @@ namespace Tankiya
             graphics.PreferredBackBufferHeight = 600;
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
-            Window.Title = "The Tankiya";
+            Window.Title = "Mustank2016   |  Press J button to join";
 
             keyboardState = Keyboard.GetState();
             commandSender = new BasicCommandSender();

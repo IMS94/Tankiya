@@ -391,11 +391,14 @@ namespace tank_game
         public void select_opponent()
         {
             List<int> distances = new List<int>();
+            Console.WriteLine("Distances :");
+            
             for (int i = 0; i < player_count; i++)
             {
                 int distance = battle.on_line(i);
                 if (distance > 0) { distances.Add(distance); }
                 else { distances.Add(1000); }
+                Console.WriteLine(distances[i] + " , ");
                 if (i != myid && players[i].health > 0) { op_id = i; }
 
             }
@@ -404,8 +407,8 @@ namespace tank_game
                 int player_with_min_distance = distances.IndexOf(distances.Min());
                 op_id = player_with_min_distance;
             }
-
-        
+            Console.WriteLine("Opponent :"+op_id);
+            
         }
         //main method which play the game : triggerd by msg reading with the period of 1 second (type G)
         public void gamePlay()
@@ -426,7 +429,7 @@ namespace tank_game
             int player_with_second_max_point = points.IndexOf(points.Max());
 
 
-            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>2 )
+            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>1 )
             {
                
                 if (mustank.health < 50)
