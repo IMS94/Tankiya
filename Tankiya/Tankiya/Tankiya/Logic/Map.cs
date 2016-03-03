@@ -260,16 +260,20 @@ namespace tank_game
                 }
                 String[] brickSplit = mainSplit[mainSplit.Count() - 1].Split(';');
                 int brickCount = brickSplit.Count();
+                
                 for (int j = 0; j < brickCount; j++)
                 {
                     String[] brick = brickSplit[j].Split(',');
                     int damage_val = Int32.Parse(brick[2] + "");
-                    if (grid[Int32.Parse(brick[0] + ""), Int32.Parse(brick[1] + "")] != null)
+                    Console.Write(brick[0] + " " + brick[1] + ",");
+                    if (grid[Int32.Parse(brick[0] + ""), Int32.Parse(brick[1] + "")] != null && 
+                        grid[Int32.Parse(brick[0] + ""), Int32.Parse(brick[1] + "")].GetType().Equals(typeof(Brick)))
                     {
                         ((Brick)(grid[Int32.Parse(brick[0] + ""), Int32.Parse(brick[1] + "")])).health = (4 - damage_val) * 25;
                         if (damage_val == 4)
                         {
                             grid[Int32.Parse(brick[0] + ""), Int32.Parse(brick[1] + "")] = new EmptyCell();
+                            Console.WriteLine("The brick at "+brick[0]+" "+brick[1]+" replaced with an empty cell");
                         }
 
                     }
@@ -347,7 +351,10 @@ namespace tank_game
                     }
                 }
             }
-           
+            else 
+            {
+                sendCommandToServer(collect_resources.collectCoin());
+            }
 
         }
         public void safe_health_pack_collect()
@@ -386,26 +393,28 @@ namespace tank_game
             }
         }
 
-      
-
         public void select_opponent()
         {
             List<int> distances = new List<int>();
             Console.WriteLine("Distances :");
-            
+            bool opponent_exist = false;
             for (int i = 0; i < player_count; i++)
             {
                 int distance = battle.on_line(i);
                 if (distance > 0) { distances.Add(distance); }
                 else { distances.Add(1000); }
                 Console.WriteLine(distances[i] + " , ");
-                if (i != myid && players[i].health > 0) { op_id = i; }
-
+                if (i != myid && players[i].health > 0) { op_id = i; opponent_exist = true; }
+                
             }
             if (distances.Min() != 1000)
             {
                 int player_with_min_distance = distances.IndexOf(distances.Min());
                 op_id = player_with_min_distance;
+            }
+            if (!opponent_exist)
+            {
+                op_id = myid;
             }
             Console.WriteLine("Opponent :"+op_id);
             
@@ -428,8 +437,14 @@ namespace tank_game
             points[player_with_max_points]=0;
             int player_with_second_max_point = points.IndexOf(points.Max());
 
+            if (op_id == myid)
+            {
+                playingMethod = 0;
+                current_mode_discription = "Safe Coin collecting only mode activated";
+                Console.WriteLine(current_mode_discription);
+            }
 
-            if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>1 )
+            else if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>1 )
             {
                
                 if (mustank.health < 50)
@@ -439,7 +454,7 @@ namespace tank_game
                     Console.WriteLine(current_mode_discription);
 
                 }
-                else if ((player_count < 4 && player_with_max_points == myid) || player_with_max_points != myid)
+                else if ((player_count < 3 && player_with_max_points == myid) || player_with_max_points != myid)
                 {
                     playingMethod = 2;
                     current_mode_discription = "follow and attack mode activated";

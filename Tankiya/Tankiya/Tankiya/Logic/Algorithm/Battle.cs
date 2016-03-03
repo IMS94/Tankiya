@@ -43,13 +43,15 @@ namespace tank_game
 
             this.my_x = players[my_id].cordinateX;
             this.my_y = players[my_id].cordinateY;
-            if (my_x == op_x && ((my_y > op_y && players[my_id].direction == 0) ||(my_y < op_y && players[my_id].direction == 2) ))
+            if (my_x == op_x && ((my_y > op_y && players[my_id].direction == 0) ||(my_y < op_y && players[my_id].direction == 2) ) &&
+                is_movable_only_verticle(op_x, my_y, op_y))
             {
                 Console.WriteLine("on_sight caught : my_x=" + my_x + " my_y=" + my_y + "    op_x=" + op_x + " op_y="+  op_y);
                 return Math.Abs(my_y-op_y);
                 
             }
-            else if (my_y == op_y && ((my_x > op_x && players[my_id].direction == 3) || (my_x < op_x && players[my_id].direction == 1)))
+            else if (my_y == op_y && ((my_x > op_x && players[my_id].direction == 3) || (my_x < op_x && players[my_id].direction == 1))
+                && is_movable_only_horizontal(my_x, op_x, op_y))
             {
                 Console.WriteLine("on_sight caught : my_x=" + my_x + " my_y=" + my_y + "    op_x=" + op_x + " op_y=" + op_y);
                 return Math.Abs(my_x - op_x);
@@ -68,12 +70,12 @@ namespace tank_game
 
             this.my_x = players[my_id].cordinateX;
             this.my_y = players[my_id].cordinateY;
-            if (my_x == op_x && (my_y != op_y))
+            if (my_x == op_x && (my_y != op_y) && is_movable_only_verticle(op_x, my_y, op_y))
             {
                 return Math.Abs(my_y - op_y);
 
             }
-            else if (my_y == op_y && my_x != op_x )
+            else if (my_y == op_y && my_x != op_x && is_movable_only_horizontal(my_x, op_x, op_y))
             {
                 return Math.Abs(my_x - op_x);
 
@@ -92,7 +94,7 @@ namespace tank_game
             int op_y = players[op_id].cordinateY;
 
             //if on sight
-            if (on_sight(op_id) > 0 && players[op_id].health>0) {
+            if (on_sight(op_id) > 0 && players[op_id].health>0 ) {
                 start_shooting_thread();
                 return 5;
             }
@@ -173,8 +175,9 @@ namespace tank_game
                 {
                     Console.WriteLine("After if in shoot Distance :" + distance +"     Health :"+players[op_id].health);
                     com.SendData(Constant.SHOOT);
+                    distance = 1;
                  //   this.bullet = new Bullet(my_id, grid, players, player_count);
-                    int waiting_time = (int)((float)distance * 1000 / 3) + 1;
+                    int waiting_time = (int)((float)distance * 1000 / 3 ) ;
                     Console.WriteLine("Shoot on P:" + op_id);
                     Thread.Sleep(waiting_time);
                  }
@@ -253,7 +256,8 @@ namespace tank_game
         {
             for (int i = y_small; i <= y_large; i++)
             {
-                if (!(grid[x, i].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem") || (grid[x, i].GetType().ToString().Equals("tank_game.Water"))))
+                if (!((grid[x, i].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")) || (grid[x, i].GetType().ToString().Equals("tank_game.Water"))
+                    || (grid[x, i].GetType().ToString().Equals("tank_game.Brick"))))
                 {
                     return false;
                 }
@@ -273,7 +277,9 @@ namespace tank_game
         {
             for (int i = x_small; i <= x_large; i++)
             {
-                if (!((grid[i, y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")) || (grid[i,y].GetType().ToString().Equals("tank_game.Water"))))
+                if (!((grid[i, y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem")) ||
+                    (grid[i,y].GetType().ToString().Equals("tank_game.Water")) ||
+                    (grid[i, y].GetType().ToString().Equals("tank_game.Brick")) ))
                 {
                     return false;
                 }

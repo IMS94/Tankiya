@@ -24,7 +24,7 @@ namespace tank_game
         private TcpListener listener; //To listen to the server        
         public string readMsg = ""; //reading msg
 
-        private String IP = "127.0.0.1";
+        private String IP = "127.0.0.1"; //192.168.1.1
         private int SENDING_PORT = 6000;
         private int RECEIVING_PORT = 7000;
 
@@ -55,64 +55,74 @@ namespace tank_game
         #region Methods of Receive and Send data
         public void ReceiveData()
         {
-            //   bool errorOcurred = false;
-            Socket connection = null; //The socket that is listened to       
-
-            //Creating listening Socket
-            this.listener = new TcpListener(IPAddress.Parse(IP), RECEIVING_PORT);
-            //Starts listening
-            this.listener.Start();
-            //Establish connection upon server request
-
-            int count = 1;
-            while (true)
+            try
             {
-                try
+                //   bool errorOcurred = false;
+                Socket connection = null; //The socket that is listened to       
+
+                //Creating listening Socket
+                this.listener = new TcpListener(IPAddress.Parse(IP), RECEIVING_PORT);
+                //Starts listening
+                this.listener.Start();
+                //Establish connection upon server request
+
+                int count = 1;
+                while (true)
                 {
-                    //connection is connected socket
-                    connection = listener.AcceptSocket();
-                 //   Console.WriteLine("Connection Status: " + connection.Connected+" connection check counter :"+count);
-                    count += 1;
-                    if (connection.Connected)
+                    try
                     {
-                        //To read from socket create NetworkStream object associated with socket
-                        this.readStream = new NetworkStream(connection);
-
-                        SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
-                        string s = connection.RemoteEndPoint.ToString();
-                        List<Byte> inputStr = new List<byte>();
-
-                        int asw = 0;
-                        while (asw != -1)
+                        //connection is connected socket
+                        connection = listener.AcceptSocket();
+                        //   Console.WriteLine("Connection Status: " + connection.Connected+" connection check counter :"+count);
+                        count += 1;
+                        if (connection.Connected)
                         {
-                            asw = this.readStream.ReadByte();
-                            inputStr.Add((Byte)asw);
+                            //To read from socket create NetworkStream object associated with socket
+                            this.readStream = new NetworkStream(connection);
+
+                            SocketAddress sockAdd = connection.RemoteEndPoint.Serialize();
+                            string s = connection.RemoteEndPoint.ToString();
+                            List<Byte> inputStr = new List<byte>();
+
+                            int asw = 0;
+                            while (asw != -1)
+                            {
+                                asw = this.readStream.ReadByte();
+                                inputStr.Add((Byte)asw);
+                            }
+
+                            readMsg = Encoding.UTF8.GetString(inputStr.ToArray());
+                            //Console.WriteLine("\n" + readMsg);                          //read input
+                            this.readStream.Close();
+
+                            map.read(readMsg);
+
+
                         }
+                        else
+                        {
 
-                        readMsg = Encoding.UTF8.GetString(inputStr.ToArray());
-                        //Console.WriteLine("\n" + readMsg);                          //read input
-                        this.readStream.Close();
+                            connection.Close();
+                            Console.WriteLine("connection_closed");
 
-                        map.read(readMsg);
-
-
+                        }
                     }
-                    else 
+
+                    catch (Exception ex)
                     {
-                       
-                        connection.Close();
-                        Console.WriteLine("connection_closed");
-                        
+                        Console.WriteLine(ex.ToString());
 
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+             }
 
-                
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
+
+
+
         }
         public void SendData(String msg)
         {
