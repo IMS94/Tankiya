@@ -62,10 +62,11 @@ namespace tank_game
             }
             if (cordinate.y < 10 && cordinate.x < 10 &&  cordinate.y > -1 && cordinate.x > -1)
             {
-                if (((grid[cordinate.x, cordinate.y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem") &&
-                    !check_if_any_player_at_cordinate(cordinate.x, cordinate.y)) ||
-                    grid[cordinate.x, cordinate.y].GetType().ToString().Equals("tank_game.Water")))
-                {
+                Console.WriteLine(check_if_any_player_at_cordinate(cordinate.x,cordinate.y));
+                if ((grid[cordinate.x, cordinate.y].GetType().BaseType.ToString().Equals("tank_game.MovableMapItem") && 
+                    !check_if_any_player_at_cordinate(cordinate.x,cordinate.y)) ||
+                    grid[cordinate.x, cordinate.y].GetType().ToString().Equals("tank_game.Water"))  
+                   {
 
                     return cordinate;
                 }
@@ -78,6 +79,8 @@ namespace tank_game
             }
             
         }
+
+        
         public void update_bullet_location()
         {
             
@@ -88,11 +91,12 @@ namespace tank_game
             }
             isAlive = false;
         }
+        
         public bool check_if_any_player_at_cordinate(int x, int y)
         {
             for (int i = 0; i < player_count; i++)
             {
-                if (players[i].cordinateX == x && players[i].cordinateY == y && players[i].health>0)
+                if (my_id!= i && players[i].cordinateX == x && players[i].cordinateY == y && players[i].health>0)
                 {
                     return true;
                 }
@@ -100,5 +104,6 @@ namespace tank_game
             return false;
                
         }
+        
     }
 }

@@ -346,12 +346,16 @@ namespace Tankiya
         }
         private void DrawBullet()
         {
-           if(this.map.bullet!=null){
-                if ( map.bullet.isAlive)
+            List<Bullet> bullet_list = map.bullet_list;
+           for (int i = 0; i < bullet_list.Count; i++)
+            {
+               
+                if (bullet_list[i].isAlive)
                 {
-                    spriteBatch.Draw(bulletTexture, new Vector2(map.bullet.current_cordinate.x * 60 + 30, map.bullet.current_cordinate.y * 60 + 30),
-                    null, Color.White, map.bullet.direction, new Vector2(30, 30), 1, SpriteEffects.None, 1);
+                    spriteBatch.Draw(bulletTexture, new Vector2(bullet_list[i].current_cordinate.x * 60 + 30, bullet_list[i].current_cordinate.y * 60 + 30),
+                    null, Color.White, GetRotation(bullet_list[i].direction), new Vector2(30, 30), 1, SpriteEffects.None, 1);
                 }
+               
            }
         }
 

@@ -24,7 +24,7 @@ namespace tank_game
         private TcpListener listener; //To listen to the server        
         public string readMsg = ""; //reading msg
 
-        private String IP = "127.0.0.1"; //192.168.1.1
+        private String IP = "127.0.0.1"; //192.168.1.1           //me 192.168.201.2
         private int SENDING_PORT = 6000;
         private int RECEIVING_PORT = 7000;
 
@@ -96,7 +96,6 @@ namespace tank_game
                             this.readStream.Close();
 
                             map.read(readMsg);
-
 
                         }
                         else

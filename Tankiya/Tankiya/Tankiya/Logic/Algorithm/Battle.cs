@@ -20,19 +20,20 @@ namespace tank_game
         private SearchMethods search_methods;
         private Thread shooting_thread;
         Communicator com = Communicator.getInstance();
-        private Bullet bullet;
-        private int player_count;
-                
+        private List<Bullet> bullet_list;
+        public int player_count { get; set; }
+           
 
-        public Battle(MapItem[,] gridE, Player[] playersE, int player_countE,int my_idE, SearchMethods searchMethods,Bullet bulletE)
+        public Battle(MapItem[,] gridE, Player[] playersE, int player_countE,int my_idE, SearchMethods searchMethods,List<Bullet> bullet_listE)
         {
             my_id = my_idE;
             players = playersE;
             grid=gridE;
             search_methods = searchMethods;
-            bullet = bulletE;
+            bullet_list = bullet_listE;
             player_count = player_countE;
-        }
+           
+            }
         
         //if any oponent is on sight //use for shoot
         public int on_sight(int op_id)
@@ -176,13 +177,33 @@ namespace tank_game
                     Console.WriteLine("After if in shoot Distance :" + distance +"     Health :"+players[op_id].health);
                     com.SendData(Constant.SHOOT);
                     distance = 1;
-                 //   this.bullet = new Bullet(my_id, grid, players, player_count);
+                    update_bullet_list();
+                    Console.WriteLine("player_count =" + player_count);
+                    bullet_list.Add(new Bullet(my_id, grid, players, player_count));
                     int waiting_time = (int)((float)distance * 1000 / 3 ) ;
                     Console.WriteLine("Shoot on P:" + op_id);
                     Thread.Sleep(waiting_time);
                  }
             }
             
+        }
+        //class to update bullet list
+        public void update_bullet_list()
+        {
+            
+                int n = bullet_list.Count();
+                for (int i = 0; i < n; i++)
+                {
+                    if (!bullet_list[i].isAlive)
+                    {
+                        bullet_list.RemoveAt(i);
+                        Console.WriteLine("bullet removed");
+                        i = i - 1;
+                        n = bullet_list.Count();
+                    }
+                    
+                }
+          
         }
 
         //follow and attack any given target

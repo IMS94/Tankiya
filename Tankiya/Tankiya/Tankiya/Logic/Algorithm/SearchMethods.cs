@@ -11,7 +11,7 @@ namespace tank_game
         private MapItem[,] grid;
         private Player[] players;
         private int myid;
-        public SearchMethods(MapItem[,] gridE ,Player[] playersE,int my_idE,int player_count)
+        public SearchMethods(MapItem[,] gridE ,Player[] playersE,int my_idE)
         {
             myid = my_idE;
             players = playersE;

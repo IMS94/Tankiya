@@ -12,7 +12,7 @@ namespace tank_game
         private Player[] players;
         private int myid;
         private SearchMethods SearchMethods;
-        private int player_count;
+        public int player_count { get; set; }
         public List<Coin> coin_queue { get; set; } //current coins
         public List<HealthPack> health_pack_queue { get; set; } //current health packs
         

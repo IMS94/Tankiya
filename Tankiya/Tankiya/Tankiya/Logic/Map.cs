@@ -13,12 +13,12 @@ namespace tank_game
         public int myid { get; set; } //my client id in the game
         public String map_string { get; set; } //map character grid string for cmd
 
-        public Bullet bullet; // bullet reference use to update bullet in GUI
+        public List<Bullet> bullet_list; // bullet reference use to update bullet in GUI
         public Battle battle ;
         public CollectResources collect_resources;
+        public SearchMethods search_methods;
         public int read_count = 0;
         public int op_id;//temparay var for keyboard check;
-
         //The map instance to be used all over the game
         private static Map map;
         public int playingMethod { get; set; }
@@ -44,18 +44,28 @@ namespace tank_game
                 }
             }
             players = new Player[5];
-            player_count = 1;
-            SearchMethods search_methods = new SearchMethods(grid, players, myid, player_count);
-            collect_resources = new CollectResources(grid,players,myid,player_count,search_methods);
-            battle = new Battle(grid,players,player_count,myid,search_methods,bullet);
-            search_methods.clearMapForBFS();
+            bullet_list = new List<Bullet>();
             com = Communicator.getInstance();
             com.StartListening();
             map_string = "";
             playingMethod = 0;
             op_id = 1;
             current_mode_discription = "";
+            search_methods = new SearchMethods(grid, players, myid);
+            search_methods.clearMapForBFS();
+            collect_resources = new CollectResources(grid, players, myid, player_count, search_methods);
+            battle = new Battle(grid, players, player_count, myid, search_methods, bullet_list);
+            
             } //Constructor to initialize map with all EmptyCells
+
+
+        public void update_player_count_value() 
+        {
+            battle.player_count = this.player_count;
+            collect_resources.player_count = this.player_count;
+            Console.WriteLine("player count values are updated in battle and resources");
+        }
+
 
         /// <summary>
         /// Get the map instance. This is to make this class a singleton.
@@ -115,6 +125,7 @@ namespace tank_game
             collect_resources.updateHealthPackAqquire();
             collect_resources.timerUpdateCoin();
             collect_resources.timerUpdateHealthPack();
+            update_player_count_value();
         }
         #endregion
 
@@ -231,6 +242,8 @@ namespace tank_game
                 < x>,<y>,<damage-level>…..< x>,<y>,<damage-level> */
 
 
+
+
             Boolean b = basicCommandReader.Read(read);
             if (!b)
             {
@@ -238,7 +251,11 @@ namespace tank_game
 
                 String[] mainSplit = read.Split(':');
                 int playerC = mainSplit.Count() - 2;
-                player_count = playerC;
+                this.player_count = playerC;
+                Console.WriteLine("playerC value :" + playerC);
+                Console.WriteLine("player_value :" + this.player_count);
+                
+
                 for (int i = 1; i < playerC + 1; i++)
                 {
 
@@ -403,7 +420,7 @@ namespace tank_game
                 int distance = battle.on_line(i);
                 if (distance > 0) { distances.Add(distance); }
                 else { distances.Add(1000); }
-                Console.WriteLine(distances[i] + " , ");
+              //  Console.WriteLine(distances[i] + " , ");
                 if (i != myid && players[i].health > 0) { op_id = i; opponent_exist = true; }
                 
             }
