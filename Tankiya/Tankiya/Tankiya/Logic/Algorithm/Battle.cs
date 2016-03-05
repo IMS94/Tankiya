@@ -170,7 +170,7 @@ namespace tank_game
             while (distance > 0 && players[op_id].health > 0)
             {
                 Console.WriteLine("Before if in shoot Distance :" + distance + "     Health :" + players[op_id].health);
-            
+                update_bullet_list();
                 distance = on_sight(op_id);
                 if (distance > 0 && players[op_id].health>0)
                 {
@@ -187,6 +187,8 @@ namespace tank_game
             }
             
         }
+
+
         //class to update bullet list
         public void update_bullet_list()
         {
@@ -202,6 +204,7 @@ namespace tank_game
                         n = bullet_list.Count();
                     }
                     
+                
                 }
           
         }
@@ -232,6 +235,7 @@ namespace tank_game
             int op_x = players[player_id].cordinateX;
             int op_y = players[player_id].cordinateY;
 
+            //if (players[op_id].health - players[my_id].health >= 0) { return 7; }
             if (Math.Abs(my_x - op_x) == 1)
             {
                 if (is_movable_only_verticle(op_x, my_y, op_y) && my_y!= op_y)

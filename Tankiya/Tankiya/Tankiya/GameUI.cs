@@ -50,7 +50,7 @@ namespace Tankiya
         /// <summary>
         /// Colors array to color the tanks
         /// </summary>
-        private Color[] playerColors = new Color[] { Color.LightBlue, Color.Brown, Color.Yellow, Color.Pink,Color.Purple };
+        private Color[] playerColors = new Color[] { Color.LightBlue, Color.Brown, Color.Yellow, Color.Pink, Color.Red };
 
 
         public GameUI()

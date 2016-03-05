@@ -368,8 +368,9 @@ namespace tank_game
                     }
                 }
             }
-            else 
+            else if (this.op_id == myid)
             {
+                Console.WriteLine("Free roam activated");
                 sendCommandToServer(collect_resources.collectCoin());
             }
 
