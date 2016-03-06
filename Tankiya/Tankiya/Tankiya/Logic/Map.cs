@@ -28,7 +28,8 @@ namespace tank_game
         private BasicCommandReader basicCommandReader=new BasicCommandReader();
         private BasicCommandSender basicCommandSender=new BasicCommandSender();
         private Communicator com;
-
+        private Thread free_roam;
+        bool free_roam_on=false; 
         public String current_mode_discription { get; set; }
         
         #endregion
@@ -55,7 +56,7 @@ namespace tank_game
             search_methods.clearMapForBFS();
             collect_resources = new CollectResources(grid, players, myid, player_count, search_methods);
             battle = new Battle(grid, players, player_count, myid, search_methods, bullet_list);
-            
+           
             } //Constructor to initialize map with all EmptyCells
 
 
@@ -297,7 +298,17 @@ namespace tank_game
                 }
             }
             updateWorld();
-            gamePlay();
+            //if (number_of_alive_players() == 1 && !free_roam_on)
+            //{
+           //     free_roam_on = true;
+           //     this.free_roam = new Thread(free_roam_thread_function);
+          //      free_roam.Start();
+           // }
+          //  else
+          //  {
+                gamePlay();
+
+        //    } 
             foreach (Coin coin in collect_resources.coin_queue)
             {
                 
@@ -309,6 +320,16 @@ namespace tank_game
            //     Console.WriteLine("@readmovingG : Health Pack in queue " + hp.x_cordinate + " " + hp.y_cordinate+"     "+hp.left_time);
             }
             
+        }
+
+        public void free_roam_thread_function()
+        { 
+            while(true)
+            {
+                Thread.Sleep(1000);
+                gamePlay();
+                
+            }
         }
         private void readCoinC(String read)
         {   //C:<x>,<y>:<LT>:<Val>#
@@ -356,6 +377,29 @@ namespace tank_game
                 {
                     sendCommandToServer(attack_value);
                 }
+                else if (attack_value >= 4 && attack_value < 8) 
+                {
+                    int danger_direction = attack_value - 4;
+                    if (collect_resources.collectCoin().Count != 0)
+                    {
+                        int next_dir_for_coin = collect_resources.collectCoin()[0];
+                        if (danger_direction != next_dir_for_coin)
+                        {
+                            sendCommandToServer(next_dir_for_coin);
+                            return;
+                        }
+                        
+                    }
+                    if (collect_resources.collectHealthPack().Count != 0)
+                    {
+                        int next_dir_for_health = collect_resources.collectHealthPack()[0];
+                        if (danger_direction != next_dir_for_health)
+                        {
+                            sendCommandToServer(next_dir_for_health);
+                            return;
+                        }
+                    }
+                }
                 else if (attack_value < 0)
                 {
                     if (collect_resources.collectCoin().Count != 0)
@@ -377,12 +421,35 @@ namespace tank_game
         }
         public void safe_health_pack_collect()
         {
-            if (this.op_id != myid && this.op_id < player_count)
+            if (this.op_id != myid && this.op_id < player_count )
             {
                 int attack_value = battle.attack(this.op_id);
                 if (attack_value >= 0 && attack_value < 4)
                 {
                     sendCommandToServer(attack_value);
+                }
+                else if (attack_value >= 4 && attack_value < 8)
+                {
+                    int danger_direction = attack_value - 4;                   
+                    if (collect_resources.collectHealthPack().Count != 0)
+                    {
+                        int next_dir_for_health = collect_resources.collectHealthPack()[0];
+                        if (danger_direction != next_dir_for_health)
+                        {
+                            sendCommandToServer(next_dir_for_health);
+                            return;
+                        }
+                    }
+                    if (collect_resources.collectCoin().Count != 0)
+                    {
+                        int next_dir_for_coin = collect_resources.collectCoin()[0];
+                        if (danger_direction != next_dir_for_coin)
+                        {
+                            sendCommandToServer(next_dir_for_coin);
+                            return;
+                        }
+
+                    }
                 }
                 else if (attack_value < 0)
                 {
@@ -410,7 +477,6 @@ namespace tank_game
                 }
             }
         }
-
         public void select_opponent()
         {
             List<int> distances = new List<int>();
@@ -440,6 +506,7 @@ namespace tank_game
         //main method which play the game : triggerd by msg reading with the period of 1 second (type G)
         public void gamePlay()
         {
+           
             Player mustank = players[myid];
             List<int> points = new List<int>();
             
@@ -462,17 +529,16 @@ namespace tank_game
                 Console.WriteLine(current_mode_discription);
             }
 
-            else if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>1 )
+            else if (mustank.health <= 70)
             {
-               
-                if (mustank.health < 50)
-                {
-                    playingMethod = 1;
-                    current_mode_discription = "Safe Health Pack collecting mode activated";
-                    Console.WriteLine(current_mode_discription);
+                playingMethod = 1;
+                current_mode_discription = "Safe Health Pack collecting mode activated";
+                Console.WriteLine(current_mode_discription);
 
-                }
-                else if ((player_count < 3 && player_with_max_points == myid) || player_with_max_points != myid)
+            }
+            else if (!(playingMethod == 3 && players[op_id].health > 0) && read_count>1  )
+            {
+                if ((number_of_alive_players() < 3 && player_with_max_points == myid) || player_with_max_points != myid)
                 {
                     playingMethod = 2;
                     current_mode_discription = "follow and attack mode activated";
@@ -504,6 +570,18 @@ namespace tank_game
             read_count += 1;
         }
 
+        public int number_of_alive_players()
+        {
+            int count=0;
+            for (int i = 0; i < player_count; i++)
+            {
+                if (players[i].health > 0)
+                {
+                    count += 1;
+                }
+            }
+            return count;
+        }
         public void sendCommandToServer(List<int> commandList)
         {
 

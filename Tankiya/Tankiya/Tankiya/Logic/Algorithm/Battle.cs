@@ -114,10 +114,12 @@ namespace tank_game
             }
 
             // if attakable
-            else if (is_attakable(op_id) > 0)
+            int can_attack=is_attackable(op_id);
+            if (can_attack>0)
             {
-                return is_attakable(op_id);
+                return can_attack ;
             }
+            
             
             //none attacking ability
             return -1;
@@ -230,42 +232,72 @@ namespace tank_game
 
         //is_attackable = check if the mustank can be attacked by any opponent after one position change in the map
         //return the next direction to move if attackable for a player else -1
-        private int is_attakable(int player_id)
+        private int is_attackable(int player_id)
         {
             int op_x = players[player_id].cordinateX;
             int op_y = players[player_id].cordinateY;
-
-            //if (players[op_id].health - players[my_id].health >= 0) { return 7; }
+            int health_differene = players[op_id].health - players[my_id].health;
+            
             if (Math.Abs(my_x - op_x) == 1)
             {
-                if (is_movable_only_verticle(op_x, my_y, op_y) && my_y!= op_y)
+                if (is_movable_only_verticle(op_x, my_y, op_y) && my_y != op_y)
                 {
                     if (my_x - op_x > 0)
                     {
-                        return 3;
+                        if (health_differene <= 0)
+                        {
+                            return 3;
+                        }
+                        else
+                        {
+                            return 7;
+                        }
+
                     }
                     else
                     {
-                        return 1;
+                        if (health_differene <= 0)
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return 5;                   //normal value +1
+                        }
                     }
                 }
             }
             else if (Math.Abs(my_y - op_y) == 1)
             {
-                if (is_movable_only_horizontal(my_x, op_x, op_y) && my_x!=op_x)
+                if (is_movable_only_horizontal(my_x, op_x, op_y) && my_x != op_x)
                 {
                     if (my_y - op_y > 0)
                     {
-                        return 0;
+                        if (health_differene <= 0)
+                        {
+                            return 0;
+                        }
+                        else
+                        {
+                            return 4;
+                        }
                     }
                     else
                     {
-                        return 2;
+                        if (health_differene <= 0)
+                        {
+                            return 2;
+                        }
+                        else
+                        {
+                            return 6;
+                        }
                     }
                 }
 
 
             }
+           
 
             return -1;
         }
