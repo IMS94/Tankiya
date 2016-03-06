@@ -33,11 +33,13 @@ namespace Tankiya
         Texture2D coinTexture;
         Texture2D stoneTexture;
         Texture2D healthTexture;
+        SpriteFont font;
         KeyboardState keyboardState;
         int screenWidth;
         int screenHeight;
         int gridWidth;
 
+        
         #endregion
 
         /**
@@ -110,7 +112,7 @@ namespace Tankiya
             coinTexture = Content.Load<Texture2D>("coin");
             stoneTexture = Content.Load<Texture2D>("stone");
             healthTexture = Content.Load<Texture2D>("health");
-
+            font = Content.Load<SpriteFont>("SegoeUI");
         }
 
         /// <summary>
@@ -274,12 +276,10 @@ namespace Tankiya
             spriteBatch.Begin();
             
             DrawScenery();
-
             DrawObstacles();
-
             DrawTanks();
-
             DrawBullet();
+            DrawScores();
 
             spriteBatch.End();
 
@@ -425,14 +425,28 @@ namespace Tankiya
             }
         }
 
+
+        /// <summary>
+        /// Draw the scores of each player on the map
+        /// </summary>
+        private void DrawScores() {
+            Player[] players = Map.GetInstance().GetPlayers();
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null)
+                {
+                    String description = players[i].health + " " + players[i].points + " " + players[i].coins;
+                    spriteBatch.DrawString(font,description,new Vector2(600,50*i),playerColors[i]);
+                }
+            }
+        }
+
         /*
                 0 North
                 1 East,
                 2 South 
                 3 West 
          */
-
-
         private float GetRotation(int direction)
         {
             switch (direction)
