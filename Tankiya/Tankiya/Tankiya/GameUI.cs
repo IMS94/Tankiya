@@ -470,6 +470,10 @@ namespace Tankiya
                     spriteBatch.DrawString(font, "$ " + players[i].coins, new Vector2(840, 50 + 20 * i), playerColors[i]);
                 }
             }
+
+            //draw my id and play mode
+            spriteBatch.DrawString(font, "My ID \t - "+Map.GetInstance().myid, new Vector2(610, 300), Color.White);
+            spriteBatch.DrawString(font,Map.GetInstance().current_mode_discription, new Vector2(610, 320), Color.White);
         }
 
         /*
