@@ -31,6 +31,7 @@ namespace tank_game
             int[,] coin_cost_grid = new int[player_count, coin_queue.Count];
             List<int> my_costs = new List<int>();
             List<List<int>> my_coin_command_list =new List<List<int>>();
+           
 
             try
             {
@@ -67,6 +68,7 @@ namespace tank_game
                 int index_min_my_costs = my_costs.IndexOf(my_costs.Min());
                 int index_min_grid=0;
                 int total_coins = my_costs.Count();
+
                 while (total_coins > 0)
                 {
                     for (int j = 0; j < coin_queue.Count; j++)
@@ -80,7 +82,7 @@ namespace tank_game
                     bool use_less = false;
                     for (int i = 0; i < player_count; i++)
                     {
-                        if (i != myid)
+                        if (i != myid && players[i].health>0)
                         {
                             if (coin_cost_grid[i, index_min_grid] < my_costs.Min())
                             {
@@ -89,7 +91,7 @@ namespace tank_game
 
                         }
                     }
-                    if (use_less)
+                    if (use_less && number_of_alive_players()!=1)
                     {
                         my_costs[index_min_my_costs] = 1000;
                     }
@@ -109,6 +111,20 @@ namespace tank_game
             
 
         }
+
+        public int number_of_alive_players()
+        {
+            int count = 0;
+            for (int i = 0; i < player_count; i++)
+            {
+                if (players[i].health > 0)
+                {
+                    count += 1;
+                }
+            }
+            return count;
+        }
+
         public List<int> collectHealthPack()  //make command for collect Health Pack
         {
             List<int> costs = new List<int>();

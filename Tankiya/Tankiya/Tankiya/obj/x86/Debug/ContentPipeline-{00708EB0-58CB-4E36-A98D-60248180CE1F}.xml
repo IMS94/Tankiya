@@ -2,13 +2,76 @@
 <XnaContent xmlns:Pipeline="Microsoft.Xna.Framework.Content.Pipeline">
   <Asset Type="Pipeline:BuildItemCollection">
     <Item>
-      <Source>back.jpg</Source>
+      <Source>tank_min.png</Source>
+      <Name>tank_min</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\tank_min.xnb</Output>
+      <Time>2015-12-16T20:37:47.2136529+05:30</Time>
+    </Item>
+    <Item>
+      <Source>water_min.png</Source>
+      <Name>water_min</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\water_min.xnb</Output>
+      <Time>2015-12-17T02:05:23.4693908+05:30</Time>
+    </Item>
+    <Item>
+      <Source>brick.png</Source>
+      <Name>brick</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\brick.xnb</Output>
+      <Time>2015-12-17T01:33:20.2817838+05:30</Time>
+    </Item>
+    <Item>
+      <Source>coin.png</Source>
+      <Name>coin</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\coin.xnb</Output>
+      <Time>2015-12-17T01:35:45.741926+05:30</Time>
+    </Item>
+    <Item>
+      <Source>stone.png</Source>
+      <Name>stone</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\stone.xnb</Output>
+      <Time>2015-12-17T01:12:38.844265+05:30</Time>
+    </Item>
+    <Item>
+      <Source>health.png</Source>
+      <Name>health</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\health.xnb</Output>
+      <Time>2015-12-17T01:11:11.3509295+05:30</Time>
+    </Item>
+    <Item>
+      <Source>back4.jpg</Source>
       <Name>back</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
       <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\back.xnb</Output>
-      <Time>2015-12-15T22:12:06.1116295+05:30</Time>
+      <Time>2015-12-17T01:27:56.1186258+05:30</Time>
+    </Item>
+    <Item>
+      <Source>bullet.png</Source>
+      <Name>bullet</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>G:\Official\CSE\Semester 4\Programming Challenge II\Code\Tank_Game\Client\tankiya\Tankiya\Tankiya\Tankiya\bin\x86\Debug\Content\bullet.xnb</Output>
+      <Time>2016-02-28T21:42:10.755882+05:30</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
