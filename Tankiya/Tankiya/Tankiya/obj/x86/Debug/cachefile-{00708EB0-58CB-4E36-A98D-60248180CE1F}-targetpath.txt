@@ -1,8 +1,9 @@
+Content\back.xnb
 Content\tank_min.xnb
 Content\water_min.xnb
 Content\brick.xnb
 Content\coin.xnb
-Content\stone.xnb
 Content\health.xnb
-Content\back.xnb
+Content\stone.xnb
 Content\bullet.xnb
+Content\SegoeUI.xnb

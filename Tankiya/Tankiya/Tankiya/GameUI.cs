@@ -73,7 +73,7 @@ namespace Tankiya
 
             base.Initialize();
 
-            graphics.PreferredBackBufferWidth = 800;
+            graphics.PreferredBackBufferWidth = 900;
             graphics.PreferredBackBufferHeight = 600;
             graphics.IsFullScreen = false;
             graphics.ApplyChanges();
@@ -431,12 +431,43 @@ namespace Tankiya
         /// </summary>
         private void DrawScores() {
             Player[] players = Map.GetInstance().GetPlayers();
+            //names
+            spriteBatch.DrawString(font, "Player", new Vector2(610, 25), Color.White);
             for (int i = 0; i < players.Length; i++)
             {
                 if (players[i] != null)
                 {
-                    String description = players[i].health + " " + players[i].points + " " + players[i].coins;
-                    spriteBatch.DrawString(font,description,new Vector2(600,50*i),playerColors[i]);
+                    spriteBatch.DrawString(font,"P"+i , new Vector2(610, 50 + 20 * i), playerColors[i]);
+                }
+            }
+
+            //Health
+            spriteBatch.DrawString(font, "Health", new Vector2(680, 25), Color.White);
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null)
+                {
+                    spriteBatch.DrawString(font, "" + players[i].health + " %", new Vector2(680, 50 + 20 * i), playerColors[i]);
+                }
+            }
+
+            //Score
+            spriteBatch.DrawString(font, "Score", new Vector2(760, 25), Color.White);
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null)
+                {
+                    spriteBatch.DrawString(font, "" + players[i].points, new Vector2(760, 50 + 20 * i), playerColors[i]);
+                }
+            }
+
+            //Coins
+            spriteBatch.DrawString(font, "Coins", new Vector2(840, 25), Color.White);
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i] != null)
+                {
+                    spriteBatch.DrawString(font, "$ " + players[i].coins, new Vector2(840, 50 + 20 * i), playerColors[i]);
                 }
             }
         }
@@ -453,16 +484,12 @@ namespace Tankiya
             {
                 case 0:
                     return ToRadian(0);
-                    break;
                 case 1:
                     return ToRadian(90);
-                    break;
                 case 2:
                     return ToRadian(180);
-                    break;
                 case 3:
                     return ToRadian(-90);
-                    break;
             }
 
             return 0;
